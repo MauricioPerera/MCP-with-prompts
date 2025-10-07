@@ -15,9 +15,9 @@
     {
       "parameters": {
         "serverUrl": "ws://127.0.0.1:4000",
-        "provider": "ollama",
-        "model": "llama3.1",
-        "baseUrl": "http://127.0.0.1:11434",
+        "provider": "gemini",
+        "model": "gemini-1.5-flash",
+        "baseUrl": "",
         "apiKey": "",
         "goal": "Book an appointment for patient 1234 tomorrow at 10:00",
         "useArdf": true,

@@ -44,6 +44,7 @@ export class AgentMCP implements INodeType {
                                         { name: 'Mistral', value: 'mistral' },
                                         { name: 'Ollama (Local)', value: 'ollama' },
                                         { name: 'OpenAI', value: 'openai' },
+                                        { name: 'Gemini', value: 'gemini' },
                                 ],
                                 default: 'openai',
                         },

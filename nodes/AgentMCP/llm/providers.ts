@@ -6,7 +6,7 @@ export type ChatMessage = {
 export type ChatFn = (messages: ChatMessage[]) => Promise<string>;
 
 export interface LLMConfig {
-        provider: 'openai' | 'anthropic' | 'mistral' | 'ollama' | 'hf';
+        provider: 'openai' | 'anthropic' | 'mistral' | 'ollama' | 'hf' | 'gemini';
         model: string;
         apiKey?: string;
         baseUrl?: string;
@@ -93,6 +93,39 @@ export function makeChatLLM(config: LLMConfig): ChatFn {
                                         return data[0]?.generated_text ?? '';
                                 }
                                 return data?.generated_text ?? '';
+                        };
+                case 'gemini':
+                        return async (messages) => {
+                                const { GoogleGenerativeAI } = await import('@google/generative-ai');
+                                const apiKey = config.apiKey ?? '';
+                                const genAI = new GoogleGenerativeAI(apiKey);
+
+                                const systemPrompt = messages.find((m) => m.role === 'system');
+                                const turns = messages.filter((m) => m.role !== 'system');
+
+                                const model = genAI.getGenerativeModel({
+                                        model: config.model,
+                                        ...(systemPrompt?.content ? { systemInstruction: systemPrompt.content } : {}),
+                                } as any);
+
+                                const history = turns.slice(0, Math.max(0, turns.length - 1)).map((m) => ({
+                                        role: m.role === 'assistant' ? 'model' : 'user',
+                                        parts: [{ text: m.content }],
+                                }));
+
+                                const chat = model.startChat({ history } as any);
+                                const last = turns[turns.length - 1];
+                                const prompt = last ? last.content : 'Continue.';
+                                const result = await chat.sendMessage(prompt as any);
+
+                                const response = (result as any)?.response;
+                                if (response && typeof response.text === 'function') {
+                                        return response.text();
+                                }
+                                return (
+                                        response?.candidates?.[0]?.content?.parts?.[0]?.text ??
+                                        ''
+                                );
                         };
                 default:
                         throw new Error(`Proveedor no soportado: ${config.provider}`);

@@ -34,13 +34,13 @@ function parseArgs(): { endpoint: string } {
 	return { endpoint };
 }
 
-async function listTools(client: InstanceType<typeof Client>) {
+async function listTools(client: any) {
 	const response = (await client.request('tools/list', {})) as IDataObject;
 	const tools = (response.tools as IDataObject[]) ?? [];
 	return tools.map((tool) => String(tool.name ?? '')).filter((name) => name.length > 0);
 }
 
-async function listPrompts(client: InstanceType<typeof Client>) {
+async function listPrompts(client: any) {
 	const response = (await client.request('prompts/list', {})) as IDataObject;
 	const prompts = (response.prompts as IDataObject[]) ?? [];
 	return prompts.map((prompt) => String(prompt.name ?? '')).filter((name) => name.length > 0);
@@ -50,8 +50,9 @@ const testCases: TestCase[] = [
 	{
 		name: 'Server handshake',
 		run: async ({ client }) => {
+			const c: any = client;
 			// MCP handshake is performed during connect; request a benign method to ensure communication works.
-			await client.request('ping', {});
+			await c.request('ping', {});
 		},
 	},
 	{
@@ -79,7 +80,8 @@ const testCases: TestCase[] = [
 				args = { type: 'tool' };
 			}
 
-			const result = (await client.request('tools/call', {
+			const c: any = client;
+			const result = (await c.request('tools/call', {
 				name: toolName,
 				arguments: args,
 			})) as IDataObject;
@@ -100,7 +102,8 @@ const testCases: TestCase[] = [
 			const prompts = await listPrompts(client);
 			const promptName = prompts.includes('notification_send') ? 'notification_send' : prompts[0];
 
-			const response = (await client.request('prompts/get', {
+			const c: any = client;
+			const response = (await c.request('prompts/get', {
 				name: promptName,
 				arguments: { name: 'Alice', date: '2025-12-24', time: '14:00' },
 			})) as IDataObject;
@@ -114,7 +117,8 @@ const testCases: TestCase[] = [
 	{
 		name: 'Read resource',
 		skip: async ({ client }) => {
-			const response = (await client.request('resources/list', {})) as IDataObject;
+			const c: any = client;
+			const response = (await c.request('resources/list', {})) as IDataObject;
 			const resources = (response.resources as IDataObject[]) ?? [];
 			if (resources.length === 0) return true;
 			return false;
