@@ -124,7 +124,8 @@ const testCases: TestCase[] = [
 			return false;
 		},
 		run: async ({ client }) => {
-			const response = (await client.request('resources/list', {})) as IDataObject;
+			const c: any = client;
+			const response = (await c.request('resources/list', {})) as IDataObject;
 			const resources = ((response.resources as IDataObject[]) ?? []).map((resource) => ({
 				name: String(resource.name ?? ''),
 				uri: String(resource.uri ?? ''),
@@ -137,7 +138,8 @@ const testCases: TestCase[] = [
 
 			const target = resources.find((resource) => resource.uri === 'ardf://index') ?? resources[0];
 
-			const readResult = (await client.request('resources/read', { uri: target.uri })) as IDataObject;
+			const c2: any = client;
+			const readResult = (await c2.request('resources/read', { uri: target.uri })) as IDataObject;
 			const contents = readResult.contents as IDataObject[] | undefined;
 			if (!contents || contents.length === 0) {
 				throw new Error(`resources/read for ${target.uri} returned no contents`);
@@ -152,7 +154,8 @@ async function runTests(endpoint: string) {
 		version: '0.1.0',
 	});
 
-	const transport = await WebSocketClientTransport.create({ url: endpoint });
+	const TransportAny: any = WebSocketClientTransport as any;
+	const transport = new TransportAny({ url: endpoint });
 
 	await client.connect(transport);
 
