@@ -4,39 +4,47 @@
 
 This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
 
-## MCP Nodes
+## MCP Nodes y servidor de ejemplo
 
-Este paquete agrega dos nodos complementarios para trabajar con el [Model Context Protocol (MCP)](https://modelcontextprotocol.io):
+Este paquete agrupa componentes listos para explorar el [Model Context Protocol (MCP)](https://modelcontextprotocol.io) desde n8n:
 
-* **MCP Server Trigger**: inicia un servidor MCP WebSocket directamente desde n8n y expone tools, prompts y recursos configurables desde la UI.
-* **MCP Client**: permite consumir un servidor MCP existente listando y utilizando tools, prompts y recursos a través del SDK oficial.
+* **Servidor MCP de referencia (`/server`)**: proyecto TypeScript independiente que publica tools, prompts y resources de ejemplo junto con un catálogo **ARDF** (`ardf://index`) y el tool `ardf.list`.
+* **Agent MCP (ARDF-aware)**: nuevo nodo que actúa como agente multi-modelo. Detecta descriptores ARDF, planifica pasos (workflows, tools y prompts) y ejecuta llamadas MCP apoyándose en el LLM que elijas.
+* **MCP Server Trigger** y **MCP Client** existentes: continúan disponibles para construir servidores MCP dentro de n8n y consumirlos desde workflows clásicos.
 
-Ambos nodos pueden combinarse en un mismo workflow para prototipar integraciones MCP sin salir de n8n.
+Los tres nodos se pueden combinar para prototipar integraciones complejas. Además, el servidor de ejemplo te ayuda a validar rápidamente la interoperabilidad sin depender de infraestructura externa.
 
-### Configuración del MCP Server Trigger
+### Servidor MCP con catálogo ARDF
 
-El disparador del servidor MCP incorpora subnodos para describir y operar cada recurso MCP sin escribir código adicional:
+En la carpeta `/server` encontrarás un servidor MCP minimalista que usa el SDK oficial:
 
-* **Tools**: define nombre, descripción y esquema de argumentos y opcionalmente enlaza un subworkflow de n8n. El subworkflow recibe un item con `arguments`, `tool`, `description` y debe devolver texto o JSON para responder la llamada.
-* **Prompts**: permite declarar mensajes estáticos, variables con metadatos (descripción, requerido y valor por defecto) y un subworkflow opcional que genere dinámicamente los mensajes a partir de las variables recibidas.
-* **Recursos**: registra URI, metadatos y contenido base. También puede invocar un subworkflow para resolver el contenido de manera dinámica (por ejemplo, leer archivos o APIs externas) devolviendo texto o JSON con su `mimeType` correspondiente.
+* **Tools**: `patient_lookup` y `appointment_create` devuelven JSON simulado para agilizar pruebas.
+* **Prompt**: `notification_send` genera plantillas parametrizadas para confirmar citas.
+* **Resources**: políticas y documentación en Markdown, junto con el catálogo `ardf://index`.
+* **Tools auxiliares**: `ardf.list`, `prompt.run` y `resource.read` ofrecen filtros y fallbacks pensados para clientes que sólo soportan tools.
 
-Cada entry incorpora campos adicionales para describir **ARDF (Agent Resource Description Format)**: cuándo utilizarlo, dominio, tags, versión, autor y media type. Estos metadatos se utilizan para generar un catálogo autodocumentado.
+Para ejecutarlo basta con compilar el proyecto (`npm run build`) y lanzar `node dist/server/index.js` o bien utilizar `ts-node` durante el desarrollo. El transporte por defecto es `stdio`, pero puedes adaptar fácilmente la conexión a WebSocket u otros transports disponibles en el SDK.
 
-#### Catálogo ARDF opcional
+### Nodo Agent MCP (ARDF-aware)
 
-La colección **ARDF** dentro del nodo permite publicar automáticamente:
+El nuevo nodo `Agent MCP` amplía el ecosistema MCP dentro de n8n:
 
-* Un recurso `ardf://index` (URI configurable) con la lista de descriptores generados a partir de tus tools, prompts y recursos.
-* Un tool `ardf.list` que filtra el índice por tipo, dominio o tags para clientes MCP con soporte limitado a tools.
+1. **Descubrimiento ARDF**: intenta leer `ardf://index` y, si no existe, degrada a `tools/list`, `prompts/list` y `resources/list` estándar.
+2. **Planificación heurística**: selecciona workflows completos cuando están disponibles, o bien combina tools y prompts relevantes según `when_to_use`, `description` y `tags`.
+3. **Contexto y políticas**: descarga recursos tipo `policy` y los inyecta como mensaje de sistema antes de llamar al LLM.
+4. **Ejecución multi-modelo**: elige proveedor y modelo (OpenAI, Anthropic, Mistral, Ollama u HuggingFace) para ejecutar prompts MCP o resolver pasos generados.
+5. **Fallback opcional**: documenta cómo invocar `prompt.run` y `resource.read` como tools cuando un cliente MCP no soporta prompts/resources nativos.
 
-Puedes personalizar dominio, autor y tags por defecto y sobrescribirlos por elemento. Para recursos también se expone el **tipo ARDF** (document, workflow, policy, etc.) para catalogar contenido especializado.
+El nodo devuelve un `runLog` detallado con cada paso ejecutado (tool invocado, prompt evaluado y salidas producidas), lo que facilita integrar los resultados en el resto de tu workflow.
 
-### Uso del MCP Client
+### MCP Server Trigger y MCP Client
 
-El nodo cliente consume herramientas, prompts y recursos expuestos por cualquier servidor MCP (incluyendo el disparador anterior). Las operaciones devuelven la misma estructura de datos declarada por los subworkflows, por lo que puedes encadenar workflows que ejecuten tools, interpolen prompts o lean recursos remotos.
+Los nodos originales siguen presentes:
 
-La operación **Listar ARDF** intentará llamar al tool `ardf.list` y, si no está disponible, leerá el recurso `ardf://index`. Puedes proporcionar filtros de tipo, tags y dominio desde la propia UI del nodo.
+* **MCP Server Trigger**: levanta un servidor MCP directamente desde n8n y permite declarar tools, prompts y resources sin salir del editor.
+* **MCP Client**: conecta con un servidor MCP existente para listar y utilizar herramientas, plantillas y recursos.
+
+Puedes combinar el nuevo `Agent MCP` con estos nodos para cerrar el ciclo completo: definir recursos, publicarlos, consumirlos desde un agente y orquestar workflows adicionales en n8n.
 
 To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
 

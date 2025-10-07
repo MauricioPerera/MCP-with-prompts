@@ -40,11 +40,13 @@
       "dist/nodes/ExampleNode/ExampleNode.node.js",
       "dist/nodes/HttpBin/HttpBin.node.js",
       "dist/nodes/McpClient/McpClient.node.js",
-      "dist/nodes/McpServerTrigger/McpServerTrigger.node.js"
+      "dist/nodes/McpServerTrigger/McpServerTrigger.node.js",
+      "dist/nodes/AgentMCP/AgentMCP.node.js"
     ]
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^0.6.0"
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "zod": "^3.24.1"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "~8.32.0",
