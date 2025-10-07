@@ -6,3 +6,6 @@ dist
 npm-debug.log*
 yarn.lock
 .vscode/launch.json
+scripts/n8n-db-util.js
+scripts/sql-inspect.js
+.n8n
