@@ -1,0 +1,63 @@
+{
+  "name": "MCP Test Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "serverOptions": {
+          "host": "127.0.0.1",
+          "port": 4000
+        }
+      },
+      "id": "mcp-server-trigger-1",
+      "name": "MCP Server Trigger",
+      "type": "CUSTOM.mcpServerTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "connection": {
+          "url": "ws://127.0.0.1:4000"
+        },
+        "operation": "listTools"
+      },
+      "id": "mcp-client-1",
+      "name": "MCP Client",
+      "type": "CUSTOM.mcpClient",
+      "typeVersion": 1,
+      "position": [
+        500,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "MCP Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": {}
+}
