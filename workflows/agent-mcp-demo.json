@@ -1,0 +1,51 @@
+{
+  "name": "Agent MCP Demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger-agent-1",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        200,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "serverUrl": "ws://127.0.0.1:4000",
+        "provider": "ollama",
+        "model": "llama3.1",
+        "baseUrl": "http://127.0.0.1:11434",
+        "apiKey": "",
+        "goal": "Book an appointment for patient 1234 tomorrow at 10:00",
+        "useArdf": true,
+        "fallbackTools": true
+      },
+      "id": "agent-mcp-1",
+      "name": "Agent MCP",
+      "type": "CUSTOM.agentMcp",
+      "typeVersion": 1,
+      "position": [
+        500,
+        100
+      ]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Agent MCP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "staticData": {}
+}
