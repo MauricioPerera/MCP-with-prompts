@@ -340,6 +340,23 @@ export class McpServerTrigger implements INodeType {
                                 placeholder: 'Opciones de Agent Resource Description Format',
                                 options: [
                                         {
+                                                displayName: 'ARDF Tool Name',
+                                                name: 'listToolName',
+                                                type: 'string',
+                                                default: 'ardf.list',
+                                                displayOptions: {
+                                                        show: {
+                                                                exposeListTool: [true],
+                                                        },
+                                                },
+                                        },
+                                        {
+                                                displayName: 'ARDF Version',
+                                                name: 'version',
+                                                type: 'string',
+                                                default: '1.0',
+                                        },
+                                        {
                                                 displayName: 'Default Author',
                                                 name: 'defaultAuthor',
                                                 type: 'string',
@@ -352,6 +369,13 @@ export class McpServerTrigger implements INodeType {
                                                 default: '',
                                         },
                                         {
+                                                displayName: 'Default Tags',
+                                                name: 'defaultTags',
+                                                type: 'string',
+                                                default: '',
+                                                description: 'Separadas por coma',
+                                        },
+                                        {
                                                 displayName: 'Enable',
                                                 name: 'enabled',
                                                 type: 'boolean',
@@ -360,35 +384,11 @@ export class McpServerTrigger implements INodeType {
                                                         'Whether to generate an ARDF index automatically from the configured tools, prompts, and resources',
                                         },
                                         {
-                                                displayName: 'Media Type',
-                                                name: 'mediaType',
-                                                type: 'string',
-                                                default: 'application/vnd.ardf+json',
-                                        },
-                                        {
-                                                displayName: 'ARDF Tool Name',
-                                                name: 'listToolName',
-                                                type: 'string',
-                                                default: 'ardf.list',
-                                                displayOptions: {
-                                                        show: {
-                                                                exposeListTool: [true],
-                                                        },
-                                                },
-                                        },
-                                        {
                                                 displayName: 'Expose ardf.list Tool',
                                                 name: 'exposeListTool',
                                                 type: 'boolean',
                                                 default: true,
                                                 description: 'Whether to expose an MCP tool that lets clients filter ARDF descriptors',
-                                        },
-                                        {
-                                                displayName: 'Default Tags',
-                                                name: 'defaultTags',
-                                                type: 'string',
-                                                default: '',
-                                                description: 'Separadas por coma',
                                         },
                                         {
                                                 displayName: 'Index Title',
@@ -403,10 +403,10 @@ export class McpServerTrigger implements INodeType {
                                                 default: 'ardf://index',
                                         },
                                         {
-                                                displayName: 'ARDF Version',
-                                                name: 'version',
+                                                displayName: 'Media Type',
+                                                name: 'mediaType',
                                                 type: 'string',
-                                                default: '1.0',
+                                                default: 'application/vnd.ardf+json',
                                         },
                                 ],
                         },
