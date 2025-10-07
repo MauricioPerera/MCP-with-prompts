@@ -7,6 +7,11 @@ import type {
 } from 'n8n-workflow';
 import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
 
+const dynamicImport: <T>(specifier: string) => Promise<T> = new Function(
+        'specifier',
+        'return import(specifier);',
+) as <T>(specifier: string) => Promise<T>;
+
 interface McpClientModule {
         Client: new (options?: IDataObject) => {
                 connect: (transport: McpTransport) => Promise<void>;
@@ -192,7 +197,7 @@ export class McpClient implements INodeType {
 
                 let sdk: McpClientModule;
                 try {
-                        sdk = (await import('@modelcontextprotocol/sdk/client/index.js')) as unknown as McpClientModule;
+                        sdk = await dynamicImport<McpClientModule>('@modelcontextprotocol/sdk/client/index.js');
                 } catch (error) {
                         throw new NodeOperationError(
                                 this.getNode(),
