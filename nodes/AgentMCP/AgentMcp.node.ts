@@ -67,13 +67,13 @@ export class AgentMCP implements INodeType {
                                 default: '',
                         },
                         {
-                                displayName: 'Goal / Instrucción',
+                                displayName: 'Goal / Instruction',
                                 name: 'goal',
                                 type: 'string',
-                                default: 'Reservar cita para el paciente 1234 mañana a las 10:00',
+                                default: 'Book an appointment for patient 1234 tomorrow at 10:00',
                         },
                         {
-                                displayName: 'Usar ARDF Si Está Disponible',
+                                displayName: 'Use ARDF When Available',
                                 name: 'useArdf',
                                 type: 'boolean',
                                 default: true,

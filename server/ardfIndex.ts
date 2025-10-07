@@ -4,22 +4,22 @@ export const ardfItems: ARDFDescriptor[] = [
         {
                 resource_id: 'patient_lookup',
                 resource_type: 'tool',
-                description: 'Busca paciente por ID o atributos.',
-                when_to_use: 'Cuando necesites verificar identidad o existencia de un paciente.',
+                description: 'Look up a patient by identifier or other attributes.',
+                when_to_use: "Use when you need to confirm a patient's identity or existence.",
                 metadata: { domain: 'healthcare', tags: ['patient', 'lookup'] },
         },
         {
                 resource_id: 'appointment_create',
                 resource_type: 'tool',
-                description: 'Crea una cita médica para un paciente.',
-                when_to_use: 'Tras verificar paciente y slot disponible.',
+                description: 'Create a medical appointment for a patient.',
+                when_to_use: 'After verifying the patient and finding an available slot.',
                 metadata: { domain: 'healthcare', tags: ['appointment'] },
         },
         {
                 resource_id: 'notification_send',
                 resource_type: 'prompt',
-                description: 'Redacta notificación para confirmar cita.',
-                when_to_use: 'Después de crear la cita, para notificar al usuario.',
+                description: 'Draft a notification to confirm the appointment.',
+                when_to_use: 'After creating the appointment to notify the user.',
                 metadata: { domain: 'healthcare', tags: ['notification'] },
                 content: {
                         type: 'prompt/messages',
@@ -27,12 +27,12 @@ export const ardfItems: ARDFDescriptor[] = [
                                 messages: [
                                         {
                                                 role: 'system',
-                                                content: 'Eres un asistente que genera mensajes claros y cortos.',
+                                                content: 'You are an assistant that produces clear, concise messages.',
                                         },
                                         {
                                                 role: 'user',
                                                 content:
-                                                        'Confirma la cita al paciente {{name}} el {{date}} a las {{time}}.',
+                                                        'Confirm the appointment for patient {{name}} on {{date}} at {{time}}.',
                                         },
                                 ],
                         },
@@ -41,9 +41,9 @@ export const ardfItems: ARDFDescriptor[] = [
         {
                 resource_id: 'medical_booking_flow',
                 resource_type: 'workflow',
-                description: 'Orquesta verificación de paciente, creación de cita y notificación.',
+                description: 'Orchestrates patient verification, appointment creation, and notification.',
                 when_to_use:
-                        'Cuando el usuario pida reservar una cita suministrando identificador y preferencia de horario.',
+                        'When the user requests an appointment and provides an identifier plus a preferred time slot.',
                 metadata: {
                         domain: 'healthcare',
                         tags: ['workflow', 'coordination'],
@@ -63,8 +63,8 @@ export const ardfItems: ARDFDescriptor[] = [
         {
                 resource_id: 'policy_privacy_v1',
                 resource_type: 'policy',
-                description: 'Política de privacidad y manejo de datos del paciente.',
-                when_to_use: 'Siempre leer antes de procesar datos personales.',
+                description: 'Privacy policy and guidance for handling patient data.',
+                when_to_use: 'Always read before processing personal data.',
                 metadata: { domain: 'compliance', tags: ['privacy', 'policy'], version: '1.0.0' },
         },
 ];

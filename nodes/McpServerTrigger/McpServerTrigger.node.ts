@@ -178,7 +178,7 @@ const executeSubWorkflow = async (
         payload: IDataObject,
 ): Promise<IDataObject[]> => {
         if (!reference || (!reference.id && !reference.name)) {
-                throw new NodeOperationError(context.getNode(), 'Debes seleccionar un subworkflow válido.');
+                throw new NodeOperationError(context.getNode(), 'You must select a valid subworkflow.');
         }
 
         const executionContext = context as unknown as {
@@ -197,7 +197,7 @@ const executeSubWorkflow = async (
         if (typeof executor !== 'function') {
                 throw new NodeOperationError(
                         context.getNode(),
-                        'La ejecución de subworkflows no está disponible en este contexto de disparador.',
+                        'Subworkflows cannot be executed from this trigger context.',
                 );
         }
 
@@ -296,20 +296,20 @@ export class McpServerTrigger implements INodeType {
                 outputs: ['main'],
                 properties: [
                         {
-                                displayName: 'Servidor',
+                                displayName: 'Server',
                                 name: 'serverOptions',
                                 type: 'collection',
                                 default: {},
                                 placeholder: 'Opciones del servidor',
                                 options: [
                                         {
-                                                displayName: 'Nombre',
+                                                displayName: 'Name',
                                                 name: 'serverName',
                                                 type: 'string',
                                                 default: 'n8n-mcp-server',
                                         },
                                         {
-                                                displayName: 'Versión',
+                                                displayName: 'Version',
                                                 name: 'serverVersion',
                                                 type: 'string',
                                                 default: '0.1.0',
@@ -321,7 +321,7 @@ export class McpServerTrigger implements INodeType {
                                                 default: '127.0.0.1',
                                         },
                                         {
-                                                displayName: 'Puerto',
+                                                displayName: 'Port',
                                                 name: 'port',
                                                 type: 'number',
                                                 typeOptions: {
@@ -340,19 +340,19 @@ export class McpServerTrigger implements INodeType {
                                 placeholder: 'Opciones de Agent Resource Description Format',
                                 options: [
                                         {
-                                                displayName: 'Autor Por Defecto',
+                                                displayName: 'Default Author',
                                                 name: 'defaultAuthor',
                                                 type: 'string',
                                                 default: '',
                                         },
                                         {
-                                                displayName: 'Dominio Por Defecto',
+                                                displayName: 'Default Domain',
                                                 name: 'defaultDomain',
                                                 type: 'string',
                                                 default: '',
                                         },
                                         {
-                                                displayName: 'Habilitar',
+                                                displayName: 'Enable',
                                                 name: 'enabled',
                                                 type: 'boolean',
                                                 default: true,
@@ -366,7 +366,7 @@ export class McpServerTrigger implements INodeType {
                                                 default: 'application/vnd.ardf+json',
                                         },
                                         {
-                                                displayName: 'Nombre Del Tool ARDF',
+                                                displayName: 'ARDF Tool Name',
                                                 name: 'listToolName',
                                                 type: 'string',
                                                 default: 'ardf.list',
@@ -377,33 +377,33 @@ export class McpServerTrigger implements INodeType {
                                                 },
                                         },
                                         {
-                                                displayName: 'Publicar Tool ardf.list',
+                                                displayName: 'Expose ardf.list Tool',
                                                 name: 'exposeListTool',
                                                 type: 'boolean',
                                                 default: true,
                                                 description: 'Whether to expose an MCP tool that lets clients filter ARDF descriptors',
                                         },
                                         {
-                                                displayName: 'Tags Por Defecto',
+                                                displayName: 'Default Tags',
                                                 name: 'defaultTags',
                                                 type: 'string',
                                                 default: '',
                                                 description: 'Separadas por coma',
                                         },
                                         {
-                                                displayName: 'Título Del Índice',
+                                                displayName: 'Index Title',
                                                 name: 'indexTitle',
                                                 type: 'string',
                                                 default: 'ARDF Index',
                                         },
                                         {
-                                                displayName: 'URI Del Índice',
+                                                displayName: 'Index URI',
                                                 name: 'indexUri',
                                                 type: 'string',
                                                 default: 'ardf://index',
                                         },
                                         {
-                                                displayName: 'Versión ARDF',
+                                                displayName: 'ARDF Version',
                                                 name: 'version',
                                                 type: 'string',
                                                 default: '1.0',
@@ -418,20 +418,20 @@ export class McpServerTrigger implements INodeType {
                                         multipleValues: true,
                                 },
                                 default: {},
-                                placeholder: 'Añadir tool',
+                                placeholder: 'Add tool',
                                 options: [
                                         {
                                                 displayName: 'Tool',
                                                 name: 'tool',
                                                 values: [
                                                         {
-                                                                displayName: 'Autor (ARDF)',
+                                                                displayName: 'Author (ARDF)',
                                                                 name: 'ardfAuthor',
                                                                 type: 'string',
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                displayName: 'When To Use (ARDF)',
                                                                 name: 'ardfWhenToUse',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -441,7 +441,7 @@ export class McpServerTrigger implements INodeType {
                                                                 description: 'Contexto recomendado para el descriptor ARDF',
                                                         },
                                                         {
-                                                                displayName: 'Descripción',
+                                                                displayName: 'Description',
                                                                 name: 'description',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -450,7 +450,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Dominio (ARDF)',
+                                                                displayName: 'Domain (ARDF)',
                                                                 name: 'ardfDomain',
                                                                 type: 'string',
                                                                 default: '',
@@ -469,22 +469,22 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Nombre',
+                                                                displayName: 'Name',
                                                                 name: 'name',
                                                                 type: 'string',
                                                                 default: '',
                                                                 required: true,
                                                         },
                                                         {
-                                                                displayName: 'Plantilla De Respuesta',
+                                                                displayName: 'Response Template',
                                                                 name: 'responseTemplate',
                                                                 type: 'string',
                                                                 typeOptions: {
                                                                         rows: 4,
                                                                 },
-                                                                default: 'Tool {{name}} ejecutado',
+                                                                default: 'Tool {{name}} executed',
                                                                 description:
-                                                                        'Plantilla usada para responder. Puedes usar {{argumento}} para acceder a los parámetros.',
+                                                                        'Template used to render the tool response. Use {{argument}} to access argument values.',
                                                         },
                                                         {
                                                                 displayName: 'Subworkflow',
@@ -492,7 +492,7 @@ export class McpServerTrigger implements INodeType {
                                                                 type: 'workflowSelector',
                                                                 default: '',
                                                                 description:
-                                                                        'Workflow de n8n a ejecutar cuando se invoque el tool. El workflow recibirá un item con los argumentos en JSON.',
+                                                                        'Workflow to run when the tool is invoked. It receives a single item containing the arguments as JSON.',
                                                         },
                                                         {
                                                                 displayName: 'Tags (ARDF)',
@@ -502,7 +502,7 @@ export class McpServerTrigger implements INodeType {
                                                                 description: 'Separadas por coma',
                                                         },
                                                         {
-                                                                displayName: 'Tipo De Respuesta',
+                                                                displayName: 'Response Type',
                                                                 name: 'responseType',
                                                                 type: 'options',
                                                                 options: [
@@ -518,7 +518,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: 'text',
                                                         },
                                                         {
-                                                                displayName: 'Versión (ARDF)',
+                                                                displayName: 'Version (ARDF)',
                                                                 name: 'ardfVersion',
                                                                 type: 'string',
                                                                 default: '',
@@ -535,20 +535,20 @@ export class McpServerTrigger implements INodeType {
                                         multipleValues: true,
                                 },
                                 default: {},
-                                placeholder: 'Añadir prompt',
+                                placeholder: 'Add prompt',
                                 options: [
                                         {
                                                 displayName: 'Prompt',
                                                 name: 'prompt',
                                                 values: [
                                                         {
-                                                                displayName: 'Autor (ARDF)',
+                                                                displayName: 'Author (ARDF)',
                                                                 name: 'ardfAuthor',
                                                                 type: 'string',
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                displayName: 'When To Use (ARDF)',
                                                                 name: 'ardfWhenToUse',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -557,7 +557,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Descripción',
+                                                                displayName: 'Description',
                                                                 name: 'description',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -566,13 +566,13 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Dominio (ARDF)',
+                                                                displayName: 'Domain (ARDF)',
                                                                 name: 'ardfDomain',
                                                                 type: 'string',
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Generador (Subworkflow)',
+                                                                displayName: 'Generator (Subworkflow)',
                                                                 name: 'generatorWorkflow',
                                                                 type: 'workflowSelector',
                                                                 default: '',
@@ -586,7 +586,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Mensajes',
+                                                                displayName: 'Messages',
                                                                 name: 'messages',
                                                                 type: 'fixedCollection',
                                                                 typeOptions: {
@@ -595,11 +595,11 @@ export class McpServerTrigger implements INodeType {
                                                                 default: {},
                                                                 options: [
                                                                         {
-                                                                                displayName: 'Mensaje',
+                                                                                displayName: 'Message',
                                                                                 name: 'message',
                                                                                 values: [
                                                                                         {
-                                                                                                displayName: 'Rol',
+                                                                                                displayName: 'Role',
                                                                                                 name: 'role',
                                                                                                 type: 'options',
                                                                                                 options: [
@@ -610,7 +610,7 @@ export class McpServerTrigger implements INodeType {
                                                                                                 default: 'system',
                                                                                         },
                                                                                         {
-                                                                                                displayName: 'Contenido',
+                                                                                                displayName: 'Content',
                                                                                                 name: 'content',
                                                                                                 type: 'string',
                                                                                                 typeOptions: {
@@ -623,7 +623,7 @@ export class McpServerTrigger implements INodeType {
                                                                 ],
                                                         },
                                                         {
-                                                                displayName: 'Nombre',
+                                                                displayName: 'Name',
                                                                 name: 'name',
                                                                 type: 'string',
                                                                 default: '',
@@ -650,14 +650,14 @@ export class McpServerTrigger implements INodeType {
                                                                                 name: 'variable',
                                                                                 values: [
                                                                                         {
-                                                                                                displayName: 'Nombre',
+                                                                                                displayName: 'Name',
                                                                                                 name: 'name',
                                                                                                 type: 'string',
                                                                                                 default: '',
                                                                                                 required: true,
                                                                                         },
                                                                                         {
-                                                                                                displayName: 'Descripción',
+                                                                                                displayName: 'Description',
                                                                                                 name: 'description',
                                                                                                 type: 'string',
                                                                                                 default: '',
@@ -666,13 +666,13 @@ export class McpServerTrigger implements INodeType {
                                                                                                 },
                                                                                         },
                                                                                         {
-                                                                                                displayName: 'Requerida',
+                                                                                                displayName: 'Required',
                                                                                                 name: 'required',
                                                                                                 type: 'boolean',
                                                                                                 default: false,
                                                                                         },
                                                                                         {
-                                                                                                displayName: 'Valor Por Defecto',
+                                                                                                displayName: 'Default Value',
                                                                                                 name: 'default',
                                                                                                 type: 'string',
                                                                                                 default: '',
@@ -682,7 +682,7 @@ export class McpServerTrigger implements INodeType {
                                                                 ],
                                                         },
                                                         {
-                                                                displayName: 'Versión (ARDF)',
+                                                                displayName: 'Version (ARDF)',
                                                                 name: 'ardfVersion',
                                                                 type: 'string',
                                                                 default: '',
@@ -692,27 +692,27 @@ export class McpServerTrigger implements INodeType {
                                 ],
                         },
                         {
-                                displayName: 'Recursos',
+                                displayName: 'Resources',
                                 name: 'resources',
                                 type: 'fixedCollection',
                                 typeOptions: {
                                         multipleValues: true,
                                 },
                                 default: {},
-                                placeholder: 'Añadir recurso',
+                                placeholder: 'Add resource',
                                 options: [
                                         {
-                                                displayName: 'Recurso',
+                                                displayName: 'Resource',
                                                 name: 'resource',
                                                 values: [
                                                         {
-                                                                displayName: 'Autor (ARDF)',
+                                                                displayName: 'Author (ARDF)',
                                                                 name: 'ardfAuthor',
                                                                 type: 'string',
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Contenido',
+                                                                displayName: 'Content',
                                                                 name: 'content',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -721,7 +721,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                displayName: 'When To Use (ARDF)',
                                                                 name: 'ardfWhenToUse',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -730,7 +730,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Descripción',
+                                                                displayName: 'Description',
                                                                 name: 'description',
                                                                 type: 'string',
                                                                 typeOptions: {
@@ -739,7 +739,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
-                                                                displayName: 'Dominio (ARDF)',
+                                                                displayName: 'Domain (ARDF)',
                                                                 name: 'ardfDomain',
                                                                 type: 'string',
                                                                 default: '',
@@ -765,7 +765,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: 'text/plain',
                                                         },
                                                         {
-                                                                displayName: 'Nombre',
+                                                                displayName: 'Name',
                                                                 name: 'name',
                                                                 type: 'string',
                                                                 default: '',
@@ -779,7 +779,7 @@ export class McpServerTrigger implements INodeType {
                                                                 description: 'Separadas por coma',
                                                         },
                                                         {
-                                                                displayName: 'Tipo (ARDF)',
+                                                                displayName: 'Type (ARDF)',
                                                                 name: 'ardfResourceType',
                                                                 type: 'options',
                                                                 options: [
@@ -794,7 +794,7 @@ export class McpServerTrigger implements INodeType {
                                                                 default: 'resource',
                                                         },
                                                         {
-                                                                displayName: 'Tipo De Contenido',
+                                                                displayName: 'Content Type',
                                                                 name: 'responseType',
                                                                 type: 'options',
                                                                 options: [
@@ -817,7 +817,7 @@ export class McpServerTrigger implements INodeType {
                                                                 required: true,
                                                         },
                                                         {
-                                                                displayName: 'Versión (ARDF)',
+                                                                displayName: 'Version (ARDF)',
                                                                 name: 'ardfVersion',
                                                                 type: 'string',
                                                                 default: '',
@@ -1134,7 +1134,7 @@ export class McpServerTrigger implements INodeType {
                 } catch (error) {
                         throw new NodeOperationError(
                                 this.getNode(),
-                                'No se pudo cargar el SDK oficial de MCP. Asegúrate de instalar "@modelcontextprotocol/sdk".',
+                                'Failed to load the official MCP SDK. Make sure "@modelcontextprotocol/sdk" is installed.',
                         );
                 }
 
@@ -1174,7 +1174,7 @@ export class McpServerTrigger implements INodeType {
 
                         throw new NodeOperationError(
                                 this.getNode(),
-                                'La instancia del servidor MCP no expone un método setRequestHandler compatible',
+                                'The MCP server instance does not expose a compatible setRequestHandler method',
                         );
                 };
 
@@ -1197,7 +1197,7 @@ export class McpServerTrigger implements INodeType {
                         if (ardfListToolEnabled) {
                                 toolList.push({
                                         name: ardfListToolName,
-                                        description: 'Devuelve descriptores ARDF opcionalmente filtrados por tipo, dominio o tags',
+                                        description: 'Returns ARDF descriptors optionally filtered by type, domain, or tags',
                                         input_schema: {
                                                 type: 'object',
                                                 properties: {
@@ -1229,7 +1229,7 @@ export class McpServerTrigger implements INodeType {
                                 try {
                                         args = JSON.parse(argsInput);
                                 } catch (error) {
-                                        throw new NodeOperationError(this.getNode(), `Arguments inválidos para el tool ${toolName}`);
+                                        throw new NodeOperationError(this.getNode(), `Invalid arguments for tool ${toolName}`);
                                 }
                         } else if (typeof argsInput === 'object' && argsInput !== null) {
                                 args = argsInput as IDataObject;
@@ -1331,7 +1331,7 @@ export class McpServerTrigger implements INodeType {
                                                         } catch (error) {
                                                                 throw new NodeOperationError(
                                                                         this.getNode(),
-                                                                        `El subworkflow del tool ${toolName} devolvió JSON inválido`,
+                                                                        `The subworkflow for tool ${toolName} returned invalid JSON`,
                                                                 );
                                                         }
                                                 }
@@ -1366,7 +1366,7 @@ export class McpServerTrigger implements INodeType {
                                         } catch (error) {
                                                 throw new NodeOperationError(
                                                         this.getNode(),
-                                                        `La respuesta del tool ${toolName} no es un JSON válido`,
+                                                        `The response from tool ${toolName} is not valid JSON`,
                                                 );
                                         }
                                 }
@@ -1424,7 +1424,7 @@ export class McpServerTrigger implements INodeType {
                                 } catch (error) {
                                         throw new NodeOperationError(
                                                 this.getNode(),
-                                                `Los argumentos del prompt ${promptName} no son válidos`,
+                                                `The arguments for prompt ${promptName} are not valid`,
                                         );
                                 }
                         } else if (typeof variablesInput === 'object' && variablesInput !== null) {
@@ -1611,7 +1611,7 @@ export class McpServerTrigger implements INodeType {
                         if (ardfResourceEnabled) {
                                 resourceList.push({
                                         name: ardfOptions.indexTitle,
-                                        description: 'Índice ARDF autogenerado con tools, prompts y recursos disponibles',
+                                        description: 'Autogenerated ARDF index describing available tools, prompts, and resources',
                                         uri: ardfOptions.indexUri,
                                         mime_type: ardfOptions.mediaType,
                                 });
@@ -1654,7 +1654,7 @@ export class McpServerTrigger implements INodeType {
                                 } catch (error) {
                                         throw new NodeOperationError(
                                                 this.getNode(),
-                                                `El contenido del recurso ${resource.name} no es un JSON válido`,
+                                                `The content of resource ${resource.name} is not valid JSON`,
                                         );
                                 }
                         }
@@ -1702,7 +1702,7 @@ export class McpServerTrigger implements INodeType {
                                                         } catch (error) {
                                                                 throw new NodeOperationError(
                                                                         this.getNode(),
-                                                                        `El loader del recurso ${resource.name} devolvió JSON inválido`,
+                                                                        `The loader for resource ${resource.name} returned invalid JSON`,
                                                                 );
                                                         }
                                                 }
@@ -1817,3 +1817,15 @@ export class McpServerTrigger implements INodeType {
                 };
         }
 }
+
+
+
+
+
+
+
+
+
+
+
+

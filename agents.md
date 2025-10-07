@@ -1,55 +1,44 @@
-# Agent MCP en n8n
+﻿# Agent MCP Quick Reference
 
-Este repositorio incluye un nodo **Agent MCP** que actua como puente entre n8n y servidores compatibles con el Model Context Protocol (MCP). El agente puede descubrir catálogos ARDF, planificar pasos usando tools, prompts y resources, y ejecutar cada paso apoyándose en proveedores de LLM configurables.
+The **Agent MCP** node bridges n8n workflows with Model Context Protocol (MCP) servers. It discovers ARDF catalogs, plans multi-step executions, and calls LLMs to complete high-level requests.
 
-## Capacidades principales
+## Core Features
 
-- **Descubrimiento ARDF**: intenta leer `ardf://index` para obtener workflows, tools y recursos enriquecidos. Si no está disponible, degrada a las llamadas clásicas `tools/list`, `prompts/list` y `resources/list`.
-- **Planificación heurística**: selecciona workflows completos cuando existen o compone herramientas y prompts según la metadata `when_to_use`, `tags`, `domain` y `description`.
-- **Contexto enriquecido**: recupera policies o documentación y las inyecta como mensajes de sistema antes de llamar al modelo.
-- **Ejecución multi-modelo**: permite usar OpenAI, Anthropic, Mistral, Ollama o HuggingFace (según el provider configurado) para generar respuestas o resolver subtareas.
-- **Fallback clásico**: documenta cómo invocar `prompt.run` y `resource.read` cuando el cliente MCP solo soporta tools.
+- **ARDF discovery** - reads `ardf://index` when available and falls back to standard MCP listings otherwise.
+- **Heuristic planning** - selects full workflows provided by ARDF or combines tools/prompts using metadata such as `when_to_use`, `tags`, and `domain`.
+- **Context injection** - downloads policy or documentation resources and prepends them to the conversation.
+- **Multi-model execution** - supports OpenAI, Anthropic, Mistral, Ollama, and HuggingFace providers.
+- **Fallback helpers** - documents how to use `prompt.run` and `resource.read` as tools when native support is missing.
 
-## Requisitos previos
+## Prerequisites
 
-1. **Servidor MCP**: puedes usar el que expone este repositorio en `server/` o cualquier instancia externa con soporte ARDF.
-2. **Credenciales LLM**: configura las credenciales necesarias para el proveedor que elijas (apikey, endpoint, etc.).
-3. **n8n >= 1.0**: instala este paquete en la carpeta de nodos personalizados y ejecuta `npm run build`.
+1. MCP server endpoint (for example the demo in `/server`, run with `node dist/server/index.js`).
+2. LLM credentials configured in n8n for the provider you intend to use.
+3. The latest build of this package (`npm install` followed by `npm run build`).
 
-## Configuración básica
+## Setup Steps
 
-1. Genera los artefactos:
+1. Install the package inside the n8n custom nodes directory:
    ```bash
-   npm install
-   npm run build
+   npm install --omit=dev "<path-to-repo>/n8n-nodes-mcp-server-trigger-0.1.0.tgz"
    ```
-2. Instala el paquete en la carpeta de nodos personalizados de n8n:
-   ```bash
-   npm install --omit=dev "<ruta-al-repo>/n8n-nodes-mcp-server-trigger-0.1.0.tgz"
-   ```
-3. Reinicia n8n y arrastra el nodo **Agent MCP** al canvas.
-4. Define:
-   - **Servidor MCP**: URL o transporte (WebSocket/stdio) al servidor.
-   - **Proveedor LLM**: selecciona proveedor y modelo.
-   - **Modo de resolución** (planificación automática, modo directo, etc.).
-   - Opcional: reglas para prompts, policies, filtros por tags o dominios.
+2. Restart n8n and add the **Agent MCP** node to your workflow.
+3. Configure the connection (MCP endpoint, transport, authentication if required).
+4. Select the LLM provider/model and planning options (auto planner, direct call, tag filters, etc.).
+5. Provide an input item describing the goal, for example "Schedule an appointment for patient 123 tomorrow at 14:00."
 
-## Flujo de trabajo típico
+## Execution Flow
 
-1. **Preparar el servidor**: ejecuta `node dist/server/index.js` para levantar el demo MCP incluido (publica tools, prompts y recursos ARDF-ready).
-2. **Configurar el agente**: ingresa la URL del servidor (por ejemplo `ws://127.0.0.1:3001`) y selecciona el LLM.
-3. **Proveer la tarea**: en el workflow, alimenta al nodo Agent MCP con un objetivo (ej. “programar una cita con ID de paciente 123”).
-4. **Revisar el `runLog`**: la salida contiene cada paso ejecutado (tool invocado, prompts resueltos y resultados). Puedes encadenar el `runLog` con otros nodos para auditar o persistir la ejecución.
+1. The agent attempts to download the ARDF index. If it exists, descriptors guide the plan; otherwise the agent lists tools/prompts/resources directly.
+2. Policies or supporting documents are fetched and injected into the conversation when tagged as such.
+3. The agent builds a plan: workflow execution, tool invocations, prompt evaluations, or combinations thereof.
+4. Each step is executed via MCP (tool call, prompt retrieval, resource read) and passed to the configured LLM.
+5. The node outputs a `runLog` array showing the decision path plus the final response.
 
-## Combos recomendados
+## Best Practices
 
-- **MCP Server Trigger** + **MCP Client** + **Agent MCP**: crea recursos dentro de n8n, publícalos, consúmelos desde el cliente y orquesta acciones complejas con el agente.
-- **Servidor stand-alone (`/server`)** + **Agent MCP**: usa el servidor demo como backend y valida los flujos del agente sin depender de infraestructura adicional.
+- Provide rich ARDF metadata (`when_to_use`, `tags`, `domain`, `mediaType`, `author`, `version`) for every tool, prompt, and resource.
+- Version the catalog so agents can confirm compatibility.
+- Persist or review the `runLog` to audit actions or notify humans before committing critical changes.
 
-## Buenas prácticas
-
-- Añade descripciones ricas (`when_to_use`, `tags`, `domain`) a cada tool/prompt/recurso para mejorar la planificación.
-- Mantén versiones (`ardfVersion`) y `mediaType` consistentes para que el catálogo sea predecible.
-- Loguea y evalúa el `runLog` para ajustar la planificación o agregar mecanismos de aprobación humana.
-
-Con estos pasos tendrás un agente MCP plenamente operativo en n8n, listo para explorar integraciones complejas con catálogos ARDF y herramientas externas.  
+Combine the Agent MCP node with the MCP Server Trigger and MCP Client nodes to build complete MCP workflows within n8n.

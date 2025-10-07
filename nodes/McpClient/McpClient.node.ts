@@ -54,7 +54,7 @@ export class McpClient implements INodeType {
                 icon: 'file:mcp.svg',
                 group: ['transform'],
                 version: 1,
-                description: 'Interactúa con un servidor MCP utilizando el SDK oficial',
+                description: 'Interact with an MCP server using the official SDK',
                 defaults: {
                         name: 'MCP Client',
                 },
@@ -62,7 +62,7 @@ export class McpClient implements INodeType {
                 outputs: ['main'],
                 properties: [
                         {
-                                displayName: 'Conexión',
+                                displayName: 'Connection',
                                 name: 'connection',
                                 type: 'collection',
                                 default: {},
@@ -77,7 +77,7 @@ export class McpClient implements INodeType {
                                 ],
                         },
                         {
-                                displayName: 'Operación',
+                                displayName: 'Operation',
                                 name: 'operation',
                                 type: 'options',
                                 noDataExpression: true,
@@ -86,44 +86,44 @@ export class McpClient implements INodeType {
                                                 name: 'Leer Recurso',
                                                 value: 'readResource',
                                                 action: 'Lee un recurso remoto',
-                                                description: 'Lee un recurso remoto',
+                                                description: 'Read a remote resource',
                                         },
                                         {
                                                 name: 'Listar ARDF',
                                                 value: 'listArdf',
                                                 action: 'Lista descriptores ARDF disponibles',
                                                 description:
-                                                        'Recupera el índice ARDF usando el tool ardf.list o leyendo el recurso ardf://index',
+                                                        'Fetch the ARDF index using the ardf.list tool or by reading the ardf://index resource',
                                         },
                                         {
                                                 name: 'Listar Prompts',
                                                 value: 'listPrompts',
                                                 action: 'Obtiene la lista de prompts disponibles',
-                                                description: 'Obtiene la lista de prompts disponibles',
+                                                description: 'Retrieve the available prompts',
                                         },
                                         {
                                                 name: 'Listar Recursos',
                                                 value: 'listResources',
                                                 action: 'Obtiene la lista de recursos disponibles',
-                                                description: 'Obtiene la lista de recursos disponibles',
+                                                description: 'Retrieve the available resources',
                                         },
                                         {
                                                 name: 'Listar Tools',
                                                 value: 'listTools',
                                                 action: 'Obtiene la lista de tools disponibles',
-                                                description: 'Obtiene la lista de tools disponibles',
+                                                description: 'Retrieve the available tools',
                                         },
                                         {
                                                 name: 'Llamar Tool',
                                                 value: 'callTool',
                                                 action: 'Ejecuta un tool remoto',
-                                                description: 'Ejecuta un tool remoto',
+                                                description: 'Execute a remote tool',
                                         },
                                         {
                                                 name: 'Obtener Prompt',
                                                 value: 'getPrompt',
                                                 action: 'Recupera un prompt e interpola variables',
-                                                description: 'Recupera un prompt e interpola variables',
+                                                description: 'Fetch a prompt and interpolate variables',
                                         },
                                 ],
                                 default: 'listTools',
@@ -223,7 +223,7 @@ export class McpClient implements INodeType {
                                 },
                         },
                         {
-                                displayName: 'URI Del Índice ARDF',
+                                displayName: 'ARDF Index URI',
                                 name: 'ardfIndexUri',
                                 type: 'string',
                                 default: 'ardf://index',
@@ -248,7 +248,7 @@ export class McpClient implements INodeType {
                 } catch (error) {
                         throw new NodeOperationError(
                                 this.getNode(),
-                                'No se pudo cargar el SDK oficial de MCP. Asegúrate de instalar "@modelcontextprotocol/sdk".',
+                                'Failed to load the official MCP SDK. Make sure "@modelcontextprotocol/sdk" is installed.',
                         );
                 }
 
@@ -264,7 +264,7 @@ export class McpClient implements INodeType {
                         }
                         throw new NodeOperationError(
                                 this.getNode(),
-                                'El cliente MCP no expone un método compatible para enviar solicitudes',
+                                'The MCP client does not expose a compatible method to send requests',
                         );
                 };
 
@@ -398,7 +398,7 @@ export class McpClient implements INodeType {
 
                                 throw new NodeOperationError(
                                         this.getNode(),
-                                        `Operación no soportada: ${currentOperation}`,
+                                        `Unsupported operation: ${currentOperation}`,
                                 );
                         }
                 } finally {
@@ -413,3 +413,4 @@ export class McpClient implements INodeType {
                 return [returnData];
         }
 }
+
