@@ -41,7 +41,7 @@
       "dist/nodes/HttpBin/HttpBin.node.js",
       "dist/nodes/McpClient/McpClient.node.js",
       "dist/nodes/McpServerTrigger/McpServerTrigger.node.js",
-      "dist/nodes/AgentMCP/AgentMCP.node.js"
+      "dist/nodes/AgentMCP/AgentMcp.node.js"
     ]
   },
   "dependencies": {
