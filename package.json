@@ -1,7 +1,7 @@
 {
   "name": "n8n-nodes-<...>",
   "version": "0.1.0",
-  "description": "MCP WebSocket server trigger node for n8n",
+  "description": "MCP WebSocket server trigger and client nodes for n8n",
   "keywords": [
     "n8n-community-node-package"
   ],

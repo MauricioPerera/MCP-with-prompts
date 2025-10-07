@@ -4,6 +4,15 @@
 
 This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
 
+## MCP Nodes
+
+Este paquete agrega dos nodos complementarios para trabajar con el [Model Context Protocol (MCP)](https://modelcontextprotocol.io):
+
+* **MCP Server Trigger**: inicia un servidor MCP WebSocket directamente desde n8n y expone tools, prompts y recursos configurables desde la UI.
+* **MCP Client**: permite consumir un servidor MCP existente listando y utilizando tools, prompts y recursos a través del SDK oficial.
+
+Ambos nodos pueden combinarse en un mismo workflow para prototipar integraciones MCP sin salir de n8n.
+
 To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
 
 If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
