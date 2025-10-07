@@ -344,6 +344,13 @@ export class McpServerTrigger implements INodeType {
                                                 name: 'prompt',
                                                 values: [
                                                         {
+                                                                displayName: 'Nombre',
+                                                                name: 'name',
+                                                                type: 'string',
+                                                                default: '',
+                                                                required: true,
+                                                        },
+                                                        {
                                                                 displayName: 'Descripción',
                                                                 name: 'description',
                                                                 type: 'string',
