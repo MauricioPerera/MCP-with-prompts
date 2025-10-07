@@ -27,6 +27,7 @@
 		"nodes/**/*.json",
 		"ardf/**/*",
 		"server/**/*",
+		"scripts/**/*",
 		"package.json",
 		"index.ts"
 	]
