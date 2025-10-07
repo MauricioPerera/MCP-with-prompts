@@ -1,19 +1,19 @@
 {
   "name": "n8n-nodes-<...>",
   "version": "0.1.0",
-  "description": "",
+  "description": "MCP WebSocket server trigger and client nodes for n8n",
   "keywords": [
     "n8n-community-node-package"
   ],
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "",
-    "email": ""
+    "name": "n8n Community",
+    "email": "community@example.com"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/<...>/n8n-nodes-<...>.git"
+    "url": "https://github.com/example/n8n-mcp-server-trigger.git"
   },
   "engines": {
     "node": ">=20.15"
@@ -38,8 +38,13 @@
     ],
     "nodes": [
       "dist/nodes/ExampleNode/ExampleNode.node.js",
-      "dist/nodes/HttpBin/HttpBin.node.js"
+      "dist/nodes/HttpBin/HttpBin.node.js",
+      "dist/nodes/McpClient/McpClient.node.js",
+      "dist/nodes/McpServerTrigger/McpServerTrigger.node.js"
     ]
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0"
   },
   "devDependencies": {
     "@typescript-eslint/parser": "~8.32.0",

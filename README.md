@@ -4,6 +4,27 @@
 
 This repo contains example nodes to help you get started building your own custom integrations for [n8n](https://n8n.io). It includes the node linter and other dependencies.
 
+## MCP Nodes
+
+Este paquete agrega dos nodos complementarios para trabajar con el [Model Context Protocol (MCP)](https://modelcontextprotocol.io):
+
+* **MCP Server Trigger**: inicia un servidor MCP WebSocket directamente desde n8n y expone tools, prompts y recursos configurables desde la UI.
+* **MCP Client**: permite consumir un servidor MCP existente listando y utilizando tools, prompts y recursos a través del SDK oficial.
+
+Ambos nodos pueden combinarse en un mismo workflow para prototipar integraciones MCP sin salir de n8n.
+
+### Configuración del MCP Server Trigger
+
+El disparador del servidor MCP incorpora subnodos para describir y operar cada recurso MCP sin escribir código adicional:
+
+* **Tools**: define nombre, descripción y esquema de argumentos y opcionalmente enlaza un subworkflow de n8n. El subworkflow recibe un item con `arguments`, `tool`, `description` y debe devolver texto o JSON para responder la llamada.
+* **Prompts**: permite declarar mensajes estáticos, variables con metadatos (descripción, requerido y valor por defecto) y un subworkflow opcional que genere dinámicamente los mensajes a partir de las variables recibidas.
+* **Recursos**: registra URI, metadatos y contenido base. También puede invocar un subworkflow para resolver el contenido de manera dinámica (por ejemplo, leer archivos o APIs externas) devolviendo texto o JSON con su `mimeType` correspondiente.
+
+### Uso del MCP Client
+
+El nodo cliente consume herramientas, prompts y recursos expuestos por cualquier servidor MCP (incluyendo el disparador anterior). Las operaciones devuelven la misma estructura de datos declarada por los subworkflows, por lo que puedes encadenar workflows que ejecuten tools, interpolen prompts o lean recursos remotos.
+
 To make your custom node available to the community, you must create it as an npm package, and [submit it to the npm registry](https://docs.npmjs.com/packages-and-modules/contributing-packages-to-the-registry).
 
 If you would like your node to be available on n8n cloud you can also [submit your node for verification](https://docs.n8n.io/integrations/creating-nodes/deploy/submit-community-nodes/).
