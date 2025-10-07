@@ -13,6 +13,16 @@ interface WorkflowReference {
         name?: string;
 }
 
+interface ArdfMetadata {
+        whenToUse?: string;
+        domain?: string;
+        tags?: string[];
+        version?: string;
+        author?: string;
+        mediaType?: string;
+        resourceType?: string;
+}
+
 interface ToolConfig {
         name: string;
         description?: string;
@@ -20,6 +30,7 @@ interface ToolConfig {
         responseTemplate: string;
         responseType: 'text' | 'json';
         subWorkflow?: WorkflowReference;
+        ardf?: ArdfMetadata;
 }
 
 interface PromptMessageConfig {
@@ -40,6 +51,7 @@ interface PromptConfig {
         messages: PromptMessageConfig[];
         variables: PromptVariableConfig[];
         generatorWorkflow?: WorkflowReference;
+        ardf?: ArdfMetadata;
 }
 
 interface ResourceConfig {
@@ -50,6 +62,20 @@ interface ResourceConfig {
         content: string;
         responseType: 'text' | 'json';
         loaderWorkflow?: WorkflowReference;
+        ardf?: ArdfMetadata;
+}
+
+interface ArdfOptions {
+        enabled: boolean;
+        indexUri: string;
+        indexTitle: string;
+        mediaType: string;
+        exposeListTool: boolean;
+        listToolName: string;
+        version: string;
+        defaultDomain?: string;
+        defaultTags: string[];
+        defaultAuthor?: string;
 }
 
 interface McpServerModule {
@@ -200,6 +226,60 @@ const executeSubWorkflow = async (
         return primaryOutput.map((entry) => ({ ...(entry.json ?? ({} as IDataObject)) }));
 };
 
+const parseTags = (value: unknown): string[] => {
+        if (!value) return [];
+        if (Array.isArray(value)) {
+                return value
+                        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                        .filter((entry) => entry.length > 0);
+        }
+        if (typeof value === 'string') {
+                return value
+                        .split(',')
+                        .map((entry) => entry.trim())
+                        .filter((entry) => entry.length > 0);
+        }
+        if (typeof value === 'object') {
+                return Object.values(value as IDataObject)
+                        .map((entry) => (typeof entry === 'string' ? entry.trim() : ''))
+                        .filter((entry) => entry.length > 0);
+        }
+        return [];
+};
+
+const normalizeString = (value: unknown): string | undefined => {
+        if (typeof value === 'string') {
+                const trimmed = value.trim();
+                return trimmed ? trimmed : undefined;
+        }
+        return undefined;
+};
+
+const extractArdfMetadata = (data: IDataObject): ArdfMetadata | undefined => {
+        const whenToUse = normalizeString(data.ardfWhenToUse);
+        const domain = normalizeString(data.ardfDomain);
+        const tags = parseTags(data.ardfTags);
+        const version = normalizeString(data.ardfVersion);
+        const author = normalizeString(data.ardfAuthor);
+        const mediaType = normalizeString(data.ardfMediaType);
+        const resourceType = normalizeString(data.ardfResourceType);
+
+        if (!whenToUse && !domain && !tags.length && !version && !author && !mediaType && !resourceType) {
+                return undefined;
+        }
+
+        const metadata: ArdfMetadata = {};
+        if (whenToUse) metadata.whenToUse = whenToUse;
+        if (domain) metadata.domain = domain;
+        if (tags.length) metadata.tags = tags;
+        if (version) metadata.version = version;
+        if (author) metadata.author = author;
+        if (mediaType) metadata.mediaType = mediaType;
+        if (resourceType) metadata.resourceType = resourceType;
+
+        return metadata;
+};
+
 export class McpServerTrigger implements INodeType {
         description: INodeTypeDescription = {
                 displayName: 'MCP Server Trigger',
@@ -254,6 +334,84 @@ export class McpServerTrigger implements INodeType {
                                 ],
                         },
                         {
+                                displayName: 'ARDF',
+                                name: 'ardf',
+                                type: 'collection',
+                                default: {},
+                                placeholder: 'Opciones de Agent Resource Description Format',
+                                options: [
+                                        {
+                                                displayName: 'Autor Por Defecto',
+                                                name: 'defaultAuthor',
+                                                type: 'string',
+                                                default: '',
+                                        },
+                                        {
+                                                displayName: 'Dominio Por Defecto',
+                                                name: 'defaultDomain',
+                                                type: 'string',
+                                                default: '',
+                                        },
+                                        {
+                                                displayName: 'Habilitar',
+                                                name: 'enabled',
+                                                type: 'boolean',
+                                                default: true,
+                                                description:
+                                                        'Whether to generate an ARDF index automatically from the configured tools, prompts, and resources',
+                                        },
+                                        {
+                                                displayName: 'Media Type',
+                                                name: 'mediaType',
+                                                type: 'string',
+                                                default: 'application/vnd.ardf+json',
+                                        },
+                                        {
+                                                displayName: 'Nombre Del Tool ARDF',
+                                                name: 'listToolName',
+                                                type: 'string',
+                                                default: 'ardf.list',
+                                                displayOptions: {
+                                                        show: {
+                                                                exposeListTool: [true],
+                                                        },
+                                                },
+                                        },
+                                        {
+                                                displayName: 'Publicar Tool ardf.list',
+                                                name: 'exposeListTool',
+                                                type: 'boolean',
+                                                default: true,
+                                                description: 'Whether to expose an MCP tool that lets clients filter ARDF descriptors',
+                                        },
+                                        {
+                                                displayName: 'Tags Por Defecto',
+                                                name: 'defaultTags',
+                                                type: 'string',
+                                                default: '',
+                                                description: 'Separadas por coma',
+                                        },
+                                        {
+                                                displayName: 'Título Del Índice',
+                                                name: 'indexTitle',
+                                                type: 'string',
+                                                default: 'ARDF Index',
+                                        },
+                                        {
+                                                displayName: 'URI Del Índice',
+                                                name: 'indexUri',
+                                                type: 'string',
+                                                default: 'ardf://index',
+                                        },
+                                        {
+                                                displayName: 'Versión ARDF',
+                                                name: 'version',
+                                                type: 'string',
+                                                default: '1.0',
+                                        },
+                                ],
+                        },
+                        {
                                 displayName: 'Tools',
                                 name: 'tools',
                                 type: 'fixedCollection',
@@ -268,6 +426,22 @@ export class McpServerTrigger implements INodeType {
                                                 name: 'tool',
                                                 values: [
                                                         {
+                                                                displayName: 'Autor (ARDF)',
+                                                                name: 'ardfAuthor',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
+                                                        {
+                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                name: 'ardfWhenToUse',
+                                                                type: 'string',
+                                                                typeOptions: {
+                                                                        rows: 3,
+                                                                },
+                                                                default: '',
+                                                                description: 'Contexto recomendado para el descriptor ARDF',
+                                                        },
+                                                        {
                                                                 displayName: 'Descripción',
                                                                 name: 'description',
                                                                 type: 'string',
@@ -277,11 +451,23 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
+                                                                displayName: 'Dominio (ARDF)',
+                                                                name: 'ardfDomain',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
+                                                        {
                                                                 displayName: 'Input Schema (JSON)',
                                                                 name: 'inputSchema',
                                                                 type: 'json',
                                                                 default: '{}',
                                                                 description: 'JSON Schema para validar los argumentos del tool',
+                                                        },
+                                                        {
+                                                                displayName: 'Media Type (ARDF)',
+                                                                name: 'ardfMediaType',
+                                                                type: 'string',
+                                                                default: '',
                                                         },
                                                         {
                                                                 displayName: 'Nombre',
@@ -310,6 +496,13 @@ export class McpServerTrigger implements INodeType {
                                                                         'Workflow de n8n a ejecutar cuando se invoque el tool. El workflow recibirá un item con los argumentos en JSON.',
                                                         },
                                                         {
+                                                                displayName: 'Tags (ARDF)',
+                                                                name: 'ardfTags',
+                                                                type: 'string',
+                                                                default: '',
+                                                                description: 'Separadas por coma',
+                                                        },
+                                                        {
                                                                 displayName: 'Tipo De Respuesta',
                                                                 name: 'responseType',
                                                                 type: 'options',
@@ -324,6 +517,12 @@ export class McpServerTrigger implements INodeType {
                                                                         },
                                                                 ],
                                                                 default: 'text',
+                                                        },
+                                                        {
+                                                                displayName: 'Versión (ARDF)',
+                                                                name: 'ardfVersion',
+                                                                type: 'string',
+                                                                default: '',
                                                         },
                                                 ],
                                         },
@@ -344,11 +543,19 @@ export class McpServerTrigger implements INodeType {
                                                 name: 'prompt',
                                                 values: [
                                                         {
-                                                                displayName: 'Nombre',
-                                                                name: 'name',
+                                                                displayName: 'Autor (ARDF)',
+                                                                name: 'ardfAuthor',
                                                                 type: 'string',
                                                                 default: '',
-                                                                required: true,
+                                                        },
+                                                        {
+                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                name: 'ardfWhenToUse',
+                                                                type: 'string',
+                                                                typeOptions: {
+                                                                        rows: 3,
+                                                                },
+                                                                default: '',
                                                         },
                                                         {
                                                                 displayName: 'Descripción',
@@ -360,12 +567,24 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
+                                                                displayName: 'Dominio (ARDF)',
+                                                                name: 'ardfDomain',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
+                                                        {
                                                                 displayName: 'Generador (Subworkflow)',
                                                                 name: 'generatorWorkflow',
                                                                 type: 'workflow',
                                                                 default: '',
                                                                 description:
                                                                         'Workflow opcional que recibe las variables interpoladas y devuelve un prompt completo',
+                                                        },
+                                                        {
+                                                                displayName: 'Media Type (ARDF)',
+                                                                name: 'ardfMediaType',
+                                                                type: 'string',
+                                                                default: '',
                                                         },
                                                         {
                                                                 displayName: 'Mensajes',
@@ -412,6 +631,13 @@ export class McpServerTrigger implements INodeType {
                                                                 required: true,
                                                         },
                                                         {
+                                                                displayName: 'Tags (ARDF)',
+                                                                name: 'ardfTags',
+                                                                type: 'string',
+                                                                default: '',
+                                                                description: 'Separadas por coma',
+                                                        },
+                                                        {
                                                                 displayName: 'Variables',
                                                                 name: 'variables',
                                                                 type: 'fixedCollection',
@@ -456,6 +682,12 @@ export class McpServerTrigger implements INodeType {
                                                                         },
                                                                 ],
                                                         },
+                                                        {
+                                                                displayName: 'Versión (ARDF)',
+                                                                name: 'ardfVersion',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
                                                 ],
                                         },
                                 ],
@@ -475,11 +707,26 @@ export class McpServerTrigger implements INodeType {
                                                 name: 'resource',
                                                 values: [
                                                         {
+                                                                displayName: 'Autor (ARDF)',
+                                                                name: 'ardfAuthor',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
+                                                        {
                                                                 displayName: 'Contenido',
                                                                 name: 'content',
                                                                 type: 'string',
                                                                 typeOptions: {
                                                                         rows: 4,
+                                                                },
+                                                                default: '',
+                                                        },
+                                                        {
+                                                                displayName: 'Cuándo Usar (ARDF)',
+                                                                name: 'ardfWhenToUse',
+                                                                type: 'string',
+                                                                typeOptions: {
+                                                                        rows: 3,
                                                                 },
                                                                 default: '',
                                                         },
@@ -493,12 +740,24 @@ export class McpServerTrigger implements INodeType {
                                                                 default: '',
                                                         },
                                                         {
+                                                                displayName: 'Dominio (ARDF)',
+                                                                name: 'ardfDomain',
+                                                                type: 'string',
+                                                                default: '',
+                                                        },
+                                                        {
                                                                 displayName: 'Loader (Subworkflow)',
                                                                 name: 'loaderWorkflow',
                                                                 type: 'workflow',
                                                                 default: '',
                                                                 description:
                                                                         'Workflow opcional que resuelve el contenido del recurso. Recibe el URI y debe devolver texto o JSON.',
+                                                        },
+                                                        {
+                                                                displayName: 'Media Type (ARDF)',
+                                                                name: 'ardfMediaType',
+                                                                type: 'string',
+                                                                default: '',
                                                         },
                                                         {
                                                                 displayName: 'MIME Type',
@@ -512,6 +771,28 @@ export class McpServerTrigger implements INodeType {
                                                                 type: 'string',
                                                                 default: '',
                                                                 required: true,
+                                                        },
+                                                        {
+                                                                displayName: 'Tags (ARDF)',
+                                                                name: 'ardfTags',
+                                                                type: 'string',
+                                                                default: '',
+                                                                description: 'Separadas por coma',
+                                                        },
+                                                        {
+                                                                displayName: 'Tipo (ARDF)',
+                                                                name: 'ardfResourceType',
+                                                                type: 'options',
+                                                                options: [
+                                                                        { name: 'Document', value: 'document' },
+                                                                        { name: 'Model', value: 'model' },
+                                                                        { name: 'Policy', value: 'policy' },
+                                                                        { name: 'Prompt Wrapper', value: 'prompt' },
+                                                                        { name: 'Resource', value: 'resource' },
+                                                                        { name: 'Tool Wrapper', value: 'tool' },
+                                                                        { name: 'Workflow', value: 'workflow' },
+                                                                ],
+                                                                default: 'resource',
                                                         },
                                                         {
                                                                 displayName: 'Tipo De Contenido',
@@ -535,6 +816,12 @@ export class McpServerTrigger implements INodeType {
                                                                 type: 'string',
                                                                 default: '',
                                                                 required: true,
+                                                        },
+                                                        {
+                                                                displayName: 'Versión (ARDF)',
+                                                                name: 'ardfVersion',
+                                                                type: 'string',
+                                                                default: '',
                                                         },
                                                 ],
                                         },
@@ -587,6 +874,7 @@ export class McpServerTrigger implements INodeType {
                                         responseTemplate,
                                         responseType,
                                         subWorkflow: normalizeWorkflowReference(tool.subWorkflow),
+                                        ardf: extractArdfMetadata(tool),
                                 } satisfies ToolConfig;
                         })
                         .filter((tool): tool is ToolConfig => tool !== null);
@@ -633,6 +921,7 @@ export class McpServerTrigger implements INodeType {
                                         messages,
                                         variables,
                                         generatorWorkflow: normalizeWorkflowReference(prompt.generatorWorkflow),
+                                        ardf: extractArdfMetadata(prompt),
                                 } satisfies PromptConfig;
                         })
                         .filter((prompt): prompt is PromptConfig => prompt !== null);
@@ -655,18 +944,194 @@ export class McpServerTrigger implements INodeType {
                                         content: (resource.content as string | undefined) ?? '',
                                         responseType,
                                         loaderWorkflow: normalizeWorkflowReference(resource.loaderWorkflow),
+                                        ardf: extractArdfMetadata(resource),
                                 } satisfies ResourceConfig;
                         })
                         .filter((resource): resource is ResourceConfig => resource !== null);
 
+                const ardfParameter = (this.getNodeParameter('ardf', 0, {}) ?? {}) as IDataObject;
+                const ardfOptions: ArdfOptions = {
+                        enabled: ardfParameter.enabled !== false,
+                        indexUri: normalizeString(ardfParameter.indexUri) ?? 'ardf://index',
+                        indexTitle: normalizeString(ardfParameter.indexTitle) ?? 'ARDF Index',
+                        mediaType: normalizeString(ardfParameter.mediaType) ?? 'application/vnd.ardf+json',
+                        exposeListTool: ardfParameter.exposeListTool !== false,
+                        listToolName: normalizeString(ardfParameter.listToolName) ?? 'ardf.list',
+                        version: normalizeString(ardfParameter.version) ?? '1.0',
+                        defaultDomain: normalizeString(ardfParameter.defaultDomain),
+                        defaultTags: parseTags(ardfParameter.defaultTags),
+                        defaultAuthor: normalizeString(ardfParameter.defaultAuthor),
+                };
+
+                const ardfDescriptors: IDataObject[] = [];
+                const ardfTimestamp = new Date().toISOString();
+                const buildArdfMetadata = (metadata?: ArdfMetadata): IDataObject => {
+                        const descriptorMetadata: IDataObject = {
+                                ardf_version: ardfOptions.version,
+                                generated_at: ardfTimestamp,
+                        };
+
+                        const tags = metadata?.tags?.length ? metadata.tags : ardfOptions.defaultTags;
+                        if (tags.length) {
+                                descriptorMetadata.tags = tags;
+                        }
+
+                        const domain = metadata?.domain ?? ardfOptions.defaultDomain;
+                        if (domain) {
+                                descriptorMetadata.domain = domain;
+                        }
+
+                        const version = metadata?.version;
+                        if (version) {
+                                descriptorMetadata.version = version;
+                        }
+
+                        const author = metadata?.author ?? ardfOptions.defaultAuthor;
+                        if (author) {
+                                descriptorMetadata.author = author;
+                        }
+
+                        const mediaType = metadata?.mediaType ?? ardfOptions.mediaType;
+                        if (mediaType) {
+                                descriptorMetadata.mediaType = mediaType;
+                        }
+
+                        return descriptorMetadata;
+                };
+
+                if (ardfOptions.enabled) {
+                        for (const tool of tools) {
+                                const toolData: IDataObject = {
+                                        name: tool.name,
+                                        input_schema: tool.inputSchema ?? { type: 'object', properties: {} },
+                                        response: {
+                                                type: tool.responseType,
+                                                template: tool.responseTemplate,
+                                        },
+                                };
+
+                                if (tool.description) {
+                                        toolData.description = tool.description;
+                                }
+
+                                if (tool.subWorkflow) {
+                                        toolData.workflow = {
+                                                id: tool.subWorkflow.id,
+                                                name: tool.subWorkflow.name,
+                                        };
+                                }
+
+                                const descriptor: IDataObject = {
+                                        resource_id: tool.name,
+                                        resource_type: tool.ardf?.resourceType ?? 'tool',
+                                        name: tool.name,
+                                        description: tool.description,
+                                        content: {
+                                                type: 'tool/schema',
+                                                data: toolData,
+                                        },
+                                        metadata: buildArdfMetadata(tool.ardf),
+                                };
+
+                                if (tool.ardf?.whenToUse) {
+                                        descriptor.when_to_use = tool.ardf.whenToUse;
+                                }
+
+                                ardfDescriptors.push(descriptor);
+                        }
+
+                        for (const prompt of prompts) {
+                                const promptData: IDataObject = {
+                                        name: prompt.name,
+                                        messages: prompt.messages.map((message) => ({
+                                                role: message.role,
+                                                content: message.content,
+                                        })),
+                                        variables: prompt.variables.map((variable) => ({
+                                                name: variable.name,
+                                                description: variable.description,
+                                                required: Boolean(variable.required),
+                                                default: variable.default,
+                                        })),
+                                };
+
+                                if (prompt.generatorWorkflow) {
+                                        promptData.generator = {
+                                                id: prompt.generatorWorkflow.id,
+                                                name: prompt.generatorWorkflow.name,
+                                        };
+                                }
+
+                                const descriptor: IDataObject = {
+                                        resource_id: prompt.name,
+                                        resource_type: prompt.ardf?.resourceType ?? 'prompt',
+                                        name: prompt.name,
+                                        description: prompt.description,
+                                        content: {
+                                                type: 'prompt/messages',
+                                                data: promptData,
+                                        },
+                                        metadata: buildArdfMetadata(prompt.ardf),
+                                };
+
+                                if (prompt.ardf?.whenToUse) {
+                                        descriptor.when_to_use = prompt.ardf.whenToUse;
+                                }
+
+                                ardfDescriptors.push(descriptor);
+                        }
+
+                        for (const resource of resources) {
+                                const resourceData: IDataObject = {
+                                        name: resource.name,
+                                        uri: resource.uri,
+                                        mimeType: resource.mimeType,
+                                        response_type: resource.responseType,
+                                };
+
+                                if (resource.description) {
+                                        resourceData.description = resource.description;
+                                }
+
+                                if (resource.loaderWorkflow) {
+                                        resourceData.loader = {
+                                                id: resource.loaderWorkflow.id,
+                                                name: resource.loaderWorkflow.name,
+                                        };
+                                }
+
+                                const descriptor: IDataObject = {
+                                        resource_id: resource.uri,
+                                        resource_type: resource.ardf?.resourceType ?? 'resource',
+                                        name: resource.name,
+                                        description: resource.description,
+                                        content: {
+                                                type: `resource/${resource.responseType}`,
+                                                data: resourceData,
+                                        },
+                                        metadata: buildArdfMetadata(resource.ardf),
+                                };
+
+                                if (resource.ardf?.whenToUse) {
+                                        descriptor.when_to_use = resource.ardf.whenToUse;
+                                }
+
+                                ardfDescriptors.push(descriptor);
+                        }
+                }
+
+                const ardfListToolEnabled =
+                        ardfOptions.enabled && ardfOptions.exposeListTool && ardfDescriptors.length > 0;
+                const ardfResourceEnabled = ardfOptions.enabled && ardfDescriptors.length > 0;
+
                 const capabilities: IDataObject = {};
-                if (tools.length) {
+                if (tools.length || ardfListToolEnabled) {
                         capabilities.tools = {};
                 }
                 if (prompts.length) {
                         capabilities.prompts = {};
                 }
-                if (resources.length) {
+                if (resources.length || ardfResourceEnabled) {
                         capabilities.resources = {};
                 }
 
@@ -720,22 +1185,51 @@ export class McpServerTrigger implements INodeType {
                         );
                 };
 
-                setRequestHandler('tools/list', async () => ({
-                        tools: tools.map((tool) => ({
+                const ardfListToolName = ardfOptions.listToolName;
+                const buildArdfIndexPayload = (items: IDataObject[]): IDataObject => ({
+                        index_uri: ardfOptions.indexUri,
+                        generated_at: ardfTimestamp,
+                        version: ardfOptions.version,
+                        total: items.length,
+                        items,
+                });
+
+                setRequestHandler('tools/list', async () => {
+                        const toolList = tools.map((tool) => ({
                                 name: tool.name,
                                 description: tool.description,
                                 input_schema: tool.inputSchema ?? { type: 'object', properties: {} },
-                        })),
-                }));
+                        }));
+
+                        if (ardfListToolEnabled) {
+                                toolList.push({
+                                        name: ardfListToolName,
+                                        description: 'Devuelve descriptores ARDF opcionalmente filtrados por tipo, dominio o tags',
+                                        input_schema: {
+                                                type: 'object',
+                                                properties: {
+                                                        type: { type: 'string' },
+                                                        domain: { type: 'string' },
+                                                        tags: {
+                                                                anyOf: [
+                                                                        { type: 'string' },
+                                                                        {
+                                                                                type: 'array',
+                                                                                items: { type: 'string' },
+                                                                        },
+                                                                ],
+                                                        },
+                                                },
+                                        },
+                                });
+                        }
+
+                        return { tools: toolList };
+                });
 
                 setRequestHandler('tools/call', async (request) => {
                         const params = (request.params ?? {}) as IDataObject;
                         const toolName = (params.name as string | undefined) ?? '';
-                        const tool = toolMap.get(toolName);
-                        if (!tool) {
-                                throw new NodeOperationError(this.getNode(), `Tool "${toolName}" no encontrado`);
-                        }
-
                         const argsInput = params.arguments as IDataObject | string | undefined;
                         let args: IDataObject = {};
                         if (typeof argsInput === 'string') {
@@ -746,6 +1240,59 @@ export class McpServerTrigger implements INodeType {
                                 }
                         } else if (typeof argsInput === 'object' && argsInput !== null) {
                                 args = argsInput as IDataObject;
+                        }
+
+                        if (ardfListToolEnabled && toolName === ardfListToolName) {
+                                const typeFilter = normalizeString(args.type);
+                                const domainFilter = normalizeString(args.domain);
+                                const tagsFilter = parseTags(args.tags);
+
+                                const filteredDescriptors = ardfDescriptors.filter((descriptor) => {
+                                        const descriptorType = normalizeString(descriptor.resource_type);
+                                        if (typeFilter && descriptorType !== typeFilter) {
+                                                return false;
+                                        }
+
+                                        const metadata = descriptor.metadata as IDataObject | undefined;
+                                        if (domainFilter) {
+                                                const descriptorDomain = normalizeString(metadata?.domain);
+                                                if (descriptorDomain !== domainFilter) {
+                                                        return false;
+                                                }
+                                        }
+
+                                        if (tagsFilter.length) {
+                                                const descriptorTags = parseTags(metadata?.tags);
+                                                return tagsFilter.every((tag) => descriptorTags.includes(tag));
+                                        }
+
+                                        return true;
+                                });
+
+                                const payload = buildArdfIndexPayload(filteredDescriptors);
+                                if (typeFilter) {
+                                        payload.filter_type = typeFilter;
+                                }
+                                if (domainFilter) {
+                                        payload.filter_domain = domainFilter;
+                                }
+                                if (tagsFilter.length) {
+                                        payload.filter_tags = tagsFilter;
+                                }
+
+                                return {
+                                        content: [
+                                                {
+                                                        type: 'json',
+                                                        json: payload,
+                                                },
+                                        ],
+                                } as IDataObject;
+                        }
+
+                        const tool = toolMap.get(toolName);
+                        if (!tool) {
+                                throw new NodeOperationError(this.getNode(), `Tool "${toolName}" no encontrado`);
                         }
 
                         let toolResponseType: 'text' | 'json' = tool.responseType;
@@ -1050,18 +1597,43 @@ export class McpServerTrigger implements INodeType {
                         } as IDataObject;
                 });
 
-                setRequestHandler('resources/list', async () => ({
-                        resources: resources.map((resource) => ({
+                setRequestHandler('resources/list', async () => {
+                        const resourceList = resources.map((resource) => ({
                                 name: resource.name,
                                 description: resource.description,
                                 uri: resource.uri,
                                 mime_type: resource.mimeType,
-                        })),
-                }));
+                        }));
+
+                        if (ardfResourceEnabled) {
+                                resourceList.push({
+                                        name: ardfOptions.indexTitle,
+                                        description: 'Índice ARDF autogenerado con tools, prompts y recursos disponibles',
+                                        uri: ardfOptions.indexUri,
+                                        mime_type: ardfOptions.mediaType,
+                                });
+                        }
+
+                        return { resources: resourceList };
+                });
 
                 setRequestHandler('resources/read', async (request) => {
                         const params = (request.params ?? {}) as IDataObject;
                         const uri = (params.uri as string | undefined) ?? '';
+
+                        if (ardfResourceEnabled && uri === ardfOptions.indexUri) {
+                                return {
+                                        contents: [
+                                                {
+                                                        type: 'json',
+                                                        json: buildArdfIndexPayload(ardfDescriptors),
+                                                },
+                                        ],
+                                        mime_type: ardfOptions.mediaType,
+                                        description: ardfOptions.indexTitle,
+                                } as IDataObject;
+                        }
+
                         const resource = resourceMap.get(uri);
                         if (!resource) {
                                 throw new NodeOperationError(this.getNode(), `Recurso "${uri}" no encontrado`);
@@ -1198,20 +1770,27 @@ export class McpServerTrigger implements INodeType {
                 const transport = await sdk.WebSocketServerTransport.create({ host, port });
                 await server.connect(transport);
 
-                this.emit([
-                        [
-                                {
-                                        json: {
-                                                event: 'serverListening',
-                                                host,
-                                                port,
-                                                tools: tools.length,
-                                                prompts: prompts.length,
-                                                resources: resources.length,
-                                        },
-                                } satisfies INodeExecutionData,
-                        ],
-                ]);
+                const toolCount = tools.length + (ardfListToolEnabled ? 1 : 0);
+                const resourceCount = resources.length + (ardfResourceEnabled ? 1 : 0);
+
+                const eventPayload: IDataObject = {
+                        event: 'serverListening',
+                        host,
+                        port,
+                        tools: toolCount,
+                        prompts: prompts.length,
+                        resources: resourceCount,
+                };
+
+                if (ardfResourceEnabled || ardfListToolEnabled) {
+                        eventPayload.ardf = {
+                                descriptors: ardfDescriptors.length,
+                                indexUri: ardfOptions.indexUri,
+                                listTool: ardfListToolEnabled ? ardfListToolName : undefined,
+                        } satisfies IDataObject;
+                }
+
+                this.emit([[{ json: eventPayload } as INodeExecutionData]]);
 
                 if (typeof transport.closed === 'function') {
                         transport.closed()
