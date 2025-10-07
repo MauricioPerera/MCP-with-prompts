@@ -5,7 +5,7 @@ import type {
         INodeType,
         INodeTypeDescription,
 } from 'n8n-workflow';
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
 interface McpClientModule {
         Client: new (options?: IDataObject) => {
@@ -58,8 +58,8 @@ export class McpClient implements INodeType {
                 defaults: {
                         name: 'MCP Client',
                 },
-                inputs: [NodeConnectionType.Main],
-                outputs: [NodeConnectionType.Main],
+                inputs: ['main'],
+                outputs: ['main'],
                 properties: [
                         {
                                 displayName: 'Conexión',

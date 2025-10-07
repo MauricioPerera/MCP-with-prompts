@@ -1,5 +1,5 @@
 {
-  "name": "n8n-nodes-<...>",
+  "name": "n8n-nodes-mcp-server-trigger",
   "version": "0.1.0",
   "description": "MCP WebSocket server trigger and client nodes for n8n",
   "keywords": [
@@ -8,8 +8,7 @@
   "license": "MIT",
   "homepage": "",
   "author": {
-    "name": "n8n Community",
-    "email": "community@example.com"
+    "name": "MCP With Prompts Maintainers"
   },
   "repository": {
     "type": "git",
@@ -18,7 +17,8 @@
   "engines": {
     "node": ">=20.15"
   },
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build": "npx rimraf dist && tsc && gulp build:icons",
     "dev": "tsc --watch",

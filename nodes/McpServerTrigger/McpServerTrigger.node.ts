@@ -6,7 +6,7 @@ import type {
         ITriggerFunctions,
         ITriggerResponse,
 } from 'n8n-workflow';
-import { NodeConnectionType, NodeOperationError } from 'n8n-workflow';
+import { NodeOperationError } from 'n8n-workflow';
 
 interface WorkflowReference {
         id?: string;
@@ -209,12 +209,12 @@ export class McpServerTrigger implements INodeType {
                 version: 1,
                 description: 'Inicia un servidor MCP basado en WebSocket',
                 subtitle: 'Exponer recursos MCP',
+                eventTriggerDescription: 'Start an MCP WebSocket server to expose tools, prompts, and resources.',
                 defaults: {
                         name: 'MCP Server',
                 },
                 inputs: [],
-                outputs: [NodeConnectionType.Main],
-                triggering: true,
+                outputs: ['main'],
                 properties: [
                         {
                                 displayName: 'Servidor',
@@ -304,7 +304,7 @@ export class McpServerTrigger implements INodeType {
                                                         {
                                                                 displayName: 'Subworkflow',
                                                                 name: 'subWorkflow',
-                                                                type: 'workflow',
+                                                                type: 'workflowSelector',
                                                                 default: '',
                                                                 description:
                                                                         'Workflow de n8n a ejecutar cuando se invoque el tool. El workflow recibirá un item con los argumentos en JSON.',
@@ -362,7 +362,7 @@ export class McpServerTrigger implements INodeType {
                                                         {
                                                                 displayName: 'Generador (Subworkflow)',
                                                                 name: 'generatorWorkflow',
-                                                                type: 'workflow',
+                                                                type: 'workflowSelector',
                                                                 default: '',
                                                                 description:
                                                                         'Workflow opcional que recibe las variables interpoladas y devuelve un prompt completo',
@@ -495,7 +495,7 @@ export class McpServerTrigger implements INodeType {
                                                         {
                                                                 displayName: 'Loader (Subworkflow)',
                                                                 name: 'loaderWorkflow',
-                                                                type: 'workflow',
+                                                                type: 'workflowSelector',
                                                                 default: '',
                                                                 description:
                                                                         'Workflow opcional que resuelve el contenido del recurso. Recibe el URI y debe devolver texto o JSON.',
@@ -556,108 +556,105 @@ export class McpServerTrigger implements INodeType {
 
                 const toolsParameter = (this.getNodeParameter('tools', 0, {}) ?? {}) as IDataObject;
                 const toolEntries = (toolsParameter.tool as IDataObject[]) ?? [];
-                const tools: ToolConfig[] = toolEntries
-                        .map((tool) => {
-                                const name = (tool.name as string | undefined)?.trim();
-                                const responseTemplate = (tool.responseTemplate as string | undefined) ?? '';
-                                const responseType = (tool.responseType as string | undefined) === 'json' ? 'json' : 'text';
+                const tools: ToolConfig[] = [];
+                for (const tool of toolEntries) {
+                        const name = (tool.name as string | undefined)?.trim();
+                        if (!name) continue;
 
-                                if (!name) return null;
+                        const responseTemplate = (tool.responseTemplate as string | undefined) ?? '';
+                        const responseType = (tool.responseType as string | undefined) === 'json' ? 'json' : 'text';
 
-                                let inputSchema: IDataObject | undefined;
-                                const rawSchema = tool.inputSchema;
-                                if (typeof rawSchema === 'string' && rawSchema.trim() !== '') {
-                                        try {
-                                                inputSchema = JSON.parse(rawSchema);
-                                        } catch (error) {
-                                                throw new NodeOperationError(
-                                                        this.getNode(),
-                                                        `Parameter "Tool ${name} input schema" must be valid JSON`,
-                                                        { itemIndex: 0 },
-                                                );
-                                        }
-                                } else if (typeof rawSchema === 'object' && rawSchema !== null) {
-                                        inputSchema = rawSchema as IDataObject;
+                        let inputSchema: IDataObject | undefined;
+                        const rawSchema = tool.inputSchema;
+                        if (typeof rawSchema === 'string' && rawSchema.trim() !== '') {
+                                try {
+                                        inputSchema = JSON.parse(rawSchema);
+                                } catch (error) {
+                                        throw new NodeOperationError(
+                                                this.getNode(),
+                                                `Parameter "Tool ${name} input schema" must be valid JSON`,
+                                                { itemIndex: 0 },
+                                        );
                                 }
+                        } else if (typeof rawSchema === 'object' && rawSchema !== null) {
+                                inputSchema = rawSchema as IDataObject;
+                        }
 
-                                return {
-                                        name,
-                                        description: (tool.description as string | undefined) ?? undefined,
-                                        inputSchema,
-                                        responseTemplate,
-                                        responseType,
-                                        subWorkflow: normalizeWorkflowReference(tool.subWorkflow),
-                                } satisfies ToolConfig;
-                        })
-                        .filter((tool): tool is ToolConfig => tool !== null);
+                        tools.push({
+                                name,
+                                description: (tool.description as string | undefined)?.trim() || undefined,
+                                inputSchema,
+                                responseTemplate,
+                                responseType,
+                                subWorkflow: normalizeWorkflowReference(tool.subWorkflow),
+                        });
+                }
 
                 const promptsParameter = (this.getNodeParameter('prompts', 0, {}) ?? {}) as IDataObject;
                 const promptEntries = (promptsParameter.prompt as IDataObject[]) ?? [];
-                const prompts: PromptConfig[] = promptEntries
-                        .map((prompt) => {
-                                const name = (prompt.name as string | undefined)?.trim();
-                                if (!name) return null;
+                const prompts: PromptConfig[] = [];
+                for (const prompt of promptEntries) {
+                        const name = (prompt.name as string | undefined)?.trim();
+                        if (!name) continue;
 
-                                const messagesContainer = (prompt.messages as IDataObject | undefined) ?? {};
-                                const messageEntries = (messagesContainer.message as IDataObject[]) ?? [];
-                                const messages: PromptMessageConfig[] = messageEntries
-                                        .map((message) => {
-                                                const role = (message.role as string | undefined) ?? 'system';
-                                                const content = (message.content as string | undefined) ?? '';
+                        const description = (prompt.description as string | undefined)?.trim() || undefined;
+                        const messagesContainer = (prompt.messages as IDataObject | undefined) ?? {};
+                        const messageEntries = (messagesContainer.message as IDataObject[]) ?? [];
+                        const messages: PromptMessageConfig[] = [];
 
-                                                if (!content.trim()) return null;
+                        for (const message of messageEntries) {
+                                const role = (message.role as string | undefined) ?? 'system';
+                                const content = (message.content as string | undefined)?.trim() ?? '';
+                                if (!content) continue;
 
-                                                return { role: role as PromptMessageConfig['role'], content };
-                                        })
-                                        .filter((message): message is PromptMessageConfig => message !== null);
+                                messages.push({ role: role as PromptMessageConfig['role'], content });
+                        }
 
-                                const variablesContainer = (prompt.variables as IDataObject | undefined) ?? {};
-                                const variableEntries = (variablesContainer.variable as IDataObject[]) ?? [];
-                                const variables: PromptVariableConfig[] = variableEntries
-                                        .map((variable) => {
-                                                const variableName = (variable.name as string | undefined)?.trim();
-                                                if (!variableName) return null;
+                        const variablesContainer = (prompt.variables as IDataObject | undefined) ?? {};
+                        const variableEntries = (variablesContainer.variable as IDataObject[]) ?? [];
+                        const variables: PromptVariableConfig[] = [];
+                        for (const variable of variableEntries) {
+                                const variableName = (variable.name as string | undefined)?.trim();
+                                if (!variableName) continue;
 
-                                                return {
-                                                        name: variableName,
-                                                        description: (variable.description as string | undefined) ?? undefined,
-                                                        required: Boolean(variable.required),
-                                                        default: (variable.default as string | undefined) ?? undefined,
-                                                } satisfies PromptVariableConfig;
-                                        })
-                                        .filter((variable): variable is PromptVariableConfig => variable !== null);
+                                variables.push({
+                                        name: variableName,
+                                        description: (variable.description as string | undefined) ?? undefined,
+                                        required: Boolean(variable.required),
+                                        default: (variable.default as string | undefined) ?? undefined,
+                                });
+                        }
 
-                                return {
-                                        name,
-                                        description: (prompt.description as string | undefined) ?? undefined,
-                                        messages,
-                                        variables,
-                                        generatorWorkflow: normalizeWorkflowReference(prompt.generatorWorkflow),
-                                } satisfies PromptConfig;
-                        })
-                        .filter((prompt): prompt is PromptConfig => prompt !== null);
+                        prompts.push({
+                                name,
+                                description,
+                                messages,
+                                variables,
+                                generatorWorkflow: normalizeWorkflowReference(prompt.generatorWorkflow),
+                        });
+                }
 
                 const resourcesParameter = (this.getNodeParameter('resources', 0, {}) ?? {}) as IDataObject;
                 const resourceEntries = (resourcesParameter.resource as IDataObject[]) ?? [];
-                const resources: ResourceConfig[] = resourceEntries
-                        .map((resource) => {
-                                const name = (resource.name as string | undefined)?.trim();
-                                const uri = (resource.uri as string | undefined)?.trim();
-                                if (!name || !uri) return null;
+                const resources: ResourceConfig[] = [];
+                for (const resource of resourceEntries) {
+                        const name = (resource.name as string | undefined)?.trim();
+                        const uri = (resource.uri as string | undefined)?.trim();
+                        if (!name || !uri) continue;
 
-                                const responseType = (resource.responseType as string | undefined) === 'json' ? 'json' : 'text';
+                        const responseType = (resource.responseType as string | undefined) === 'json' ? 'json' : 'text';
 
-                                return {
-                                        name,
-                                        description: (resource.description as string | undefined) ?? undefined,
-                                        uri,
-                                        mimeType: (resource.mimeType as string | undefined) ?? 'text/plain',
-                                        content: (resource.content as string | undefined) ?? '',
-                                        responseType,
-                                        loaderWorkflow: normalizeWorkflowReference(resource.loaderWorkflow),
-                                } satisfies ResourceConfig;
-                        })
-                        .filter((resource): resource is ResourceConfig => resource !== null);
+
+                        resources.push({
+                                name,
+                                description: (resource.description as string | undefined)?.trim() || undefined,
+                                uri,
+                                mimeType: (resource.mimeType as string | undefined) ?? 'text/plain',
+                                content: (resource.content as string | undefined) ?? '',
+                                responseType,
+                                loaderWorkflow: normalizeWorkflowReference(resource.loaderWorkflow),
+                        });
+                }
 
                 const capabilities: IDataObject = {};
                 if (tools.length) {
@@ -891,7 +888,12 @@ export class McpServerTrigger implements INodeType {
                                 variables = variablesInput as IDataObject;
                         }
 
-                        const staticMessages = prompt.messages.map((message) => ({
+                        type PromptMessagePayload = {
+                                role: PromptMessageConfig['role'];
+                                content: Array<{ type: 'text'; text: string } | { type: 'json'; json: IDataObject }>;
+                        };
+
+                        const staticMessages: PromptMessagePayload[] = prompt.messages.map((message) => ({
                                 role: message.role,
                                 content: [
                                         {
@@ -901,7 +903,7 @@ export class McpServerTrigger implements INodeType {
                                 ],
                         }));
 
-                        let finalMessages = staticMessages;
+                        let finalMessages: PromptMessagePayload[] = staticMessages;
                         let finalDescription = prompt.description;
                         let finalArguments = [...prompt.variables];
 
@@ -918,75 +920,81 @@ export class McpServerTrigger implements INodeType {
 
                                         const normalizeArguments = (value: unknown): PromptVariableConfig[] => {
                                                 if (!Array.isArray(value)) return [];
-                                                return value
-                                                        .map((entry) => {
-                                                                if (typeof entry !== 'object' || entry === null) return null;
-                                                                const argument = entry as IDataObject;
-                                                                const argumentName = (argument.name as string | undefined)?.trim();
-                                                                if (!argumentName) return null;
 
-                                                                return {
-                                                                        name: argumentName,
-                                                                        description:
-                                                                                (argument.description as string | undefined) ??
-                                                                                undefined,
-                                                                        required: Boolean(argument.required),
-                                                                        default: (argument.default as string | undefined) ?? undefined,
-                                                                } satisfies PromptVariableConfig;
-                                                        })
-                                                        .filter((entry): entry is PromptVariableConfig => entry !== null);
+                                                const result: PromptVariableConfig[] = [];
+                                                for (const entry of value) {
+                                                        if (typeof entry !== 'object' || entry === null) continue;
+                                                        const argument = entry as IDataObject;
+                                                        const argumentName = (argument.name as string | undefined)?.trim();
+                                                        if (!argumentName) continue;
+
+                                                        result.push({
+                                                                name: argumentName,
+                                                                description:
+                                                                        (argument.description as string | undefined) ?? undefined,
+                                                                required: Boolean(argument.required),
+                                                                default: (argument.default as string | undefined) ?? undefined,
+                                                        });
+                                                }
+
+                                                return result;
                                         };
 
-                                        const normalizeMessages = (value: unknown): IDataObject[] => {
+                                        const normalizeMessages = (value: unknown): PromptMessagePayload[] => {
                                                 if (!Array.isArray(value)) return [];
 
-                                                const result: IDataObject[] = [];
+                                                const result: PromptMessagePayload[] = [];
+
+                                                const coerceRole = (value: unknown): PromptMessageConfig['role'] => {
+                                                        if (value === 'system' || value === 'user' || value === 'assistant') {
+                                                                return value;
+                                                        }
+                                                        return 'assistant';
+                                                };
 
                                                 for (const entry of value) {
                                                         if (typeof entry !== 'object' || entry === null) continue;
                                                         const message = entry as IDataObject;
-                                                        const role = (message.role as string | undefined) ?? 'assistant';
+                                                        const role = coerceRole(message.role);
                                                         const contentSegments = message.content;
 
                                                         if (Array.isArray(contentSegments)) {
-                                                                const normalizedSegments = contentSegments
-                                                                        .map((segment) => {
-                                                                                if (typeof segment !== 'object' || segment === null)
-                                                                                        return null;
-                                                                                const segmentData = segment as IDataObject;
-                                                                                const segmentType = (segmentData.type as string | undefined)?.toLowerCase();
+                                                                const normalizedSegments: PromptMessagePayload['content'] = [];
 
-                                                                                if (segmentType === 'json') {
-                                                                                        return {
-                                                                                                type: 'json',
-                                                                                                json:
-                                                                                                        (segmentData.json as IDataObject | undefined) ??
-                                                                                                        (segmentData.data as IDataObject | undefined) ??
-                                                                                                        (segmentData.value as IDataObject | undefined) ??
-                                                                                                        (segmentData.content as IDataObject | undefined) ??
-                                                                                                        {},
-                                                                                        } satisfies IDataObject;
-                                                                                }
+                                                                for (const segment of contentSegments) {
+                                                                        if (typeof segment !== 'object' || segment === null) continue;
+                                                                        const segmentData = segment as IDataObject;
+                                                                        const segmentType = (segmentData.type as string | undefined)?.toLowerCase();
 
-                                                                                const textCandidate =
-                                                                                        typeof segmentData.text === 'string'
-                                                                                                ? segmentData.text
-                                                                                                : typeof segmentData.value === 'string'
-                                                                                                ? segmentData.value
-                                                                                                : typeof segmentData.content === 'string'
-                                                                                                ? segmentData.content
-                                                                                                : undefined;
+                                                                        if (segmentType === 'json') {
+                                                                                normalizedSegments.push({
+                                                                                        type: 'json',
+                                                                                        json:
+                                                                                                (segmentData.json as IDataObject | undefined) ??
+                                                                                                (segmentData.data as IDataObject | undefined) ??
+                                                                                                (segmentData.value as IDataObject | undefined) ??
+                                                                                                (segmentData.content as IDataObject | undefined) ??
+                                                                                                {},
+                                                                                });
+                                                                                continue;
+                                                                        }
 
-                                                                                if (textCandidate !== undefined) {
-                                                                                        return {
-                                                                                                type: 'text',
-                                                                                                text: textCandidate,
-                                                                                        } satisfies IDataObject;
-                                                                                }
+                                                                        const textCandidate =
+                                                                                typeof segmentData.text === 'string'
+                                                                                        ? segmentData.text
+                                                                                        : typeof segmentData.value === 'string'
+                                                                                        ? segmentData.value
+                                                                                        : typeof segmentData.content === 'string'
+                                                                                        ? segmentData.content
+                                                                                        : undefined;
 
-                                                                                return null;
-                                                                        })
-                                                                        .filter((segment): segment is IDataObject => segment !== null);
+                                                                        if (textCandidate !== undefined) {
+                                                                                normalizedSegments.push({
+                                                                                        type: 'text',
+                                                                                        text: textCandidate,
+                                                                                });
+                                                                        }
+                                                                }
 
                                                                 if (normalizedSegments.length > 0) {
                                                                         result.push({ role, content: normalizedSegments });
@@ -1003,7 +1011,7 @@ export class McpServerTrigger implements INodeType {
 
                                                         if (textMessage !== undefined) {
                                                                 result.push({
-                                                                        role,
+                                                                        role: coerceRole(role),
                                                                         content: [
                                                                                 {
                                                                                         type: 'text',
@@ -1027,8 +1035,9 @@ export class McpServerTrigger implements INodeType {
                                                 finalArguments = dynamicArguments;
                                         }
 
-                                        const dynamicMessages =
-                                                normalizeMessages(payload.messages ?? generated.messages ?? []);
+                                        const dynamicMessages = normalizeMessages(
+                                                payload.messages ?? generated.messages ?? [],
+                                        );
                                         if (dynamicMessages.length > 0) {
                                                 finalMessages = dynamicMessages;
                                         }
