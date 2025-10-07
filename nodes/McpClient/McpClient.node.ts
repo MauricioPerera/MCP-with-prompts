@@ -89,6 +89,13 @@ export class McpClient implements INodeType {
                                                 description: 'Lee un recurso remoto',
                                         },
                                         {
+                                                name: 'Listar ARDF',
+                                                value: 'listArdf',
+                                                action: 'Lista descriptores ARDF disponibles',
+                                                description:
+                                                        'Recupera el índice ARDF usando el tool ardf.list o leyendo el recurso ardf://index',
+                                        },
+                                        {
                                                 name: 'Listar Prompts',
                                                 value: 'listPrompts',
                                                 action: 'Obtiene la lista de prompts disponibles',
@@ -181,6 +188,51 @@ export class McpClient implements INodeType {
                                         },
                                 },
                         },
+                        {
+                                displayName: 'Tipo (ARDF)',
+                                name: 'ardfType',
+                                type: 'string',
+                                default: '',
+                                displayOptions: {
+                                        show: {
+                                                operation: ['listArdf'],
+                                        },
+                                },
+                        },
+                        {
+                                displayName: 'Tags (ARDF)',
+                                name: 'ardfTags',
+                                type: 'string',
+                                default: '',
+                                description: 'Separadas por coma',
+                                displayOptions: {
+                                        show: {
+                                                operation: ['listArdf'],
+                                        },
+                                },
+                        },
+                        {
+                                displayName: 'Dominio (ARDF)',
+                                name: 'ardfDomain',
+                                type: 'string',
+                                default: '',
+                                displayOptions: {
+                                        show: {
+                                                operation: ['listArdf'],
+                                        },
+                                },
+                        },
+                        {
+                                displayName: 'URI Del Índice ARDF',
+                                name: 'ardfIndexUri',
+                                type: 'string',
+                                default: 'ardf://index',
+                                displayOptions: {
+                                        show: {
+                                                operation: ['listArdf'],
+                                        },
+                                },
+                        },
                 ],
         };
 
@@ -223,6 +275,70 @@ export class McpClient implements INodeType {
 
                         for (let index = 0; index < items.length; index++) {
                                 const currentOperation = this.getNodeParameter('operation', index) as string;
+
+                                if (currentOperation === 'listArdf') {
+                                        const typeFilter = (this.getNodeParameter('ardfType', index, '') as string).trim();
+                                        const tagsInput = (this.getNodeParameter('ardfTags', index, '') as string).trim();
+                                        const domainFilter = (this.getNodeParameter('ardfDomain', index, '') as string).trim();
+                                        const indexUri = (this.getNodeParameter('ardfIndexUri', index, 'ardf://index') as string).trim() || 'ardf://index';
+
+                                        const filters: IDataObject = {};
+                                        const toolArguments: IDataObject = {};
+
+                                        if (typeFilter) {
+                                                filters.type = typeFilter;
+                                                toolArguments.type = typeFilter;
+                                        }
+
+                                        if (domainFilter) {
+                                                filters.domain = domainFilter;
+                                                toolArguments.domain = domainFilter;
+                                        }
+
+                                        const parsedTags = tagsInput
+                                                ? tagsInput
+                                                          .split(',')
+                                                          .map((tag) => tag.trim())
+                                                          .filter((tag) => tag.length > 0)
+                                                : [];
+
+                                        if (parsedTags.length === 1) {
+                                                filters.tags = parsedTags;
+                                                toolArguments.tags = parsedTags[0];
+                                        } else if (parsedTags.length > 1) {
+                                                filters.tags = parsedTags;
+                                                toolArguments.tags = parsedTags;
+                                        }
+
+                                        let response: IDataObject | undefined;
+                                        let source: 'tool' | 'resource' = 'resource';
+
+                                        try {
+                                                response = (await sendRequest('tools/call', {
+                                                        name: 'ardf.list',
+                                                        arguments: toolArguments,
+                                                })) as IDataObject;
+                                                source = 'tool';
+                                        } catch (error) {
+                                                response = undefined;
+                                        }
+
+                                        if (!response) {
+                                                response = (await sendRequest('resources/read', { uri: indexUri })) as IDataObject;
+                                                source = 'resource';
+                                        }
+
+                                        const payload: IDataObject = {
+                                                operation: currentOperation,
+                                                source,
+                                                indexUri,
+                                                ...(filters.type || filters.domain || filters.tags ? { filters } : {}),
+                                                ...(response ?? {}),
+                                        };
+
+                                        returnData.push({ json: payload });
+                                        continue;
+                                }
 
                                 if (currentOperation === 'listTools') {
                                         const response = (await sendRequest('tools/list')) as IDataObject;
