@@ -59,5 +59,6 @@
     }
   },
   "settings": {},
-  "staticData": {}
+  "staticData": {},
+  "active": true
 }

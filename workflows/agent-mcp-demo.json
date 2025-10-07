@@ -47,5 +47,6 @@
     }
   },
   "settings": {},
-  "staticData": {}
+  "staticData": {},
+  "active": false
 }
