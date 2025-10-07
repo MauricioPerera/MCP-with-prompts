@@ -424,106 +424,95 @@ export class McpServerTrigger implements INodeType {
                                                 displayName: 'Tool',
                                                 name: 'tool',
                                                 values: [
-                                                        {
-                                                                displayName: 'Author (ARDF)',
-                                                                name: 'ardfAuthor',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'When To Use (ARDF)',
-                                                                name: 'ardfWhenToUse',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                                description: 'Contexto recomendado para el descriptor ARDF',
-                                                        },
-                                                        {
-                                                                displayName: 'Description',
-                                                                name: 'description',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Domain (ARDF)',
-                                                                name: 'ardfDomain',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Input Schema (JSON)',
-                                                                name: 'inputSchema',
-                                                                type: 'json',
-                                                                default: '{}',
-                                                                description: 'JSON Schema para validar los argumentos del tool',
-                                                        },
-                                                        {
-                                                                displayName: 'Media Type (ARDF)',
-                                                                name: 'ardfMediaType',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Name',
-                                                                name: 'name',
-                                                                type: 'string',
-                                                                default: '',
-                                                                required: true,
-                                                        },
-                                                        {
-                                                                displayName: 'Response Template',
-                                                                name: 'responseTemplate',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 4,
-                                                                },
-                                                                default: 'Tool {{name}} executed',
-                                                                description:
-                                                                        'Template used to render the tool response. Use {{argument}} to access argument values.',
-                                                        },
-                                                        {
-                                                                displayName: 'Subworkflow',
-                                                                name: 'subWorkflow',
-                                                                type: 'workflowSelector',
-                                                                default: '',
-                                                                description:
-                                                                        'Workflow to run when the tool is invoked. It receives a single item containing the arguments as JSON.',
-                                                        },
-                                                        {
-                                                                displayName: 'Tags (ARDF)',
-                                                                name: 'ardfTags',
-                                                                type: 'string',
-                                                                default: '',
-                                                                description: 'Separadas por coma',
-                                                        },
-                                                        {
-                                                                displayName: 'Response Type',
-                                                                name: 'responseType',
-                                                                type: 'options',
-                                                                options: [
-                                                                        {
-                                                                                name: 'Texto',
-                                                                                value: 'text',
-                                                                        },
-                                                                        {
-                                                                                name: 'JSON',
-                                                                                value: 'json',
-                                                                        },
-                                                                ],
-                                                                default: 'text',
-                                                        },
-                                                        {
-                                                                displayName: 'Version (ARDF)',
-                                                                name: 'ardfVersion',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                ],
+																																					{
+																																						displayName: 'Author (ARDF)',
+																																						name: 'ardfAuthor',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Description',
+																																						name: 'description',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Domain (ARDF)',
+																																						name: 'ardfDomain',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Input Schema (JSON)',
+																																						name: 'inputSchema',
+																																						type: 'json',
+																																						default: '{}',
+																																						description: 'JSON Schema para validar los argumentos del tool',
+																																					},
+																																					{
+																																						displayName: 'Media Type (ARDF)',
+																																						name: 'ardfMediaType',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Name',
+																																						name: 'name',
+																																						type: 'string',
+																																						default: '',
+																																							required: true,
+																																					},
+																																					{
+																																						displayName: 'Response Template',
+																																						name: 'responseTemplate',
+																																						type: 'string',
+																																						default: 'Tool {{name}} executed',
+																																						description: 'Template used to render the tool response. Use {{argument}} to access argument values.',
+																																					},
+																																					{
+																																						displayName: 'Response Type',
+																																						name: 'responseType',
+																																						type: 'options',
+																																						options: [
+																																									{
+																																										name: 'Texto',
+																																										value: 'text',
+																																									},
+																																									{
+																																										name: 'JSON',
+																																										value: 'json',
+																																									},
+																																								],
+																																						default: 'text',
+																																					},
+																																					{
+																																						displayName: 'Subworkflow',
+																																						name: 'subWorkflow',
+																																						type: 'workflowSelector',
+																																						default: '',
+																																						description: 'Workflow to run when the tool is invoked. It receives a single item containing the arguments as JSON.',
+																																					},
+																																					{
+																																						displayName: 'Tags (ARDF)',
+																																						name: 'ardfTags',
+																																						type: 'string',
+																																						default: '',
+																																						description: 'Separadas por coma',
+																																					},
+																																					{
+																																						displayName: 'Version (ARDF)',
+																																						name: 'ardfVersion',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'When To Use (ARDF)',
+																																						name: 'ardfWhenToUse',
+																																						type: 'string',
+																																						default: '',
+																																						description: 'Contexto recomendado para el descriptor ARDF',
+																																					},
+																																					],
                                         },
                                 ],
                         },
@@ -541,153 +530,143 @@ export class McpServerTrigger implements INodeType {
                                                 displayName: 'Prompt',
                                                 name: 'prompt',
                                                 values: [
-                                                        {
-                                                                displayName: 'Author (ARDF)',
-                                                                name: 'ardfAuthor',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'When To Use (ARDF)',
-                                                                name: 'ardfWhenToUse',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Description',
-                                                                name: 'description',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Domain (ARDF)',
-                                                                name: 'ardfDomain',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Generator (Subworkflow)',
-                                                                name: 'generatorWorkflow',
-                                                                type: 'workflowSelector',
-                                                                default: '',
-                                                                description:
-                                                                        'Workflow opcional que recibe las variables interpoladas y devuelve un prompt completo',
-                                                        },
-                                                        {
-                                                                displayName: 'Media Type (ARDF)',
-                                                                name: 'ardfMediaType',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Messages',
-                                                                name: 'messages',
-                                                                type: 'fixedCollection',
-                                                                typeOptions: {
-                                                                        multipleValues: true,
-                                                                },
-                                                                default: {},
-                                                                options: [
-                                                                        {
-                                                                                displayName: 'Message',
-                                                                                name: 'message',
-                                                                                values: [
-                                                                                        {
-                                                                                                displayName: 'Role',
-                                                                                                name: 'role',
-                                                                                                type: 'options',
-                                                                                                options: [
-                                                                                                        { name: 'System', value: 'system' },
-                                                                                                        { name: 'User', value: 'user' },
-                                                                                                        { name: 'Assistant', value: 'assistant' },
-                                                                                                ],
-                                                                                                default: 'system',
-                                                                                        },
-                                                                                        {
-                                                                                                displayName: 'Content',
-                                                                                                name: 'content',
-                                                                                                type: 'string',
-                                                                                                typeOptions: {
-                                                                                                        rows: 4,
-                                                                                                },
-                                                                                                default: '',
-                                                                                        },
-                                                                                ],
-                                                                        },
-                                                                ],
-                                                        },
-                                                        {
-                                                                displayName: 'Name',
-                                                                name: 'name',
-                                                                type: 'string',
-                                                                default: '',
-                                                                required: true,
-                                                        },
-                                                        {
-                                                                displayName: 'Tags (ARDF)',
-                                                                name: 'ardfTags',
-                                                                type: 'string',
-                                                                default: '',
-                                                                description: 'Separadas por coma',
-                                                        },
-                                                        {
-                                                                displayName: 'Variables',
-                                                                name: 'variables',
-                                                                type: 'fixedCollection',
-                                                                typeOptions: {
-                                                                        multipleValues: true,
-                                                                },
-                                                                default: {},
-                                                                options: [
-                                                                        {
-                                                                                displayName: 'Variable',
-                                                                                name: 'variable',
-                                                                                values: [
-                                                                                        {
-                                                                                                displayName: 'Name',
-                                                                                                name: 'name',
-                                                                                                type: 'string',
-                                                                                                default: '',
-                                                                                                required: true,
-                                                                                        },
-                                                                                        {
-                                                                                                displayName: 'Description',
-                                                                                                name: 'description',
-                                                                                                type: 'string',
-                                                                                                default: '',
-                                                                                                typeOptions: {
-                                                                                                        rows: 2,
-                                                                                                },
-                                                                                        },
-                                                                                        {
-                                                                                                displayName: 'Required',
-                                                                                                name: 'required',
-                                                                                                type: 'boolean',
-                                                                                                default: false,
-                                                                                        },
-                                                                                        {
-                                                                                                displayName: 'Default Value',
-                                                                                                name: 'default',
-                                                                                                type: 'string',
-                                                                                                default: '',
-                                                                                        },
-                                                                                ],
-                                                                        },
-                                                                ],
-                                                        },
-                                                        {
-                                                                displayName: 'Version (ARDF)',
-                                                                name: 'ardfVersion',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                ],
+																																					{
+																																						displayName: 'Author (ARDF)',
+																																						name: 'ardfAuthor',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Description',
+																																						name: 'description',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Domain (ARDF)',
+																																						name: 'ardfDomain',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Generator (Subworkflow)',
+																																						name: 'generatorWorkflow',
+																																						type: 'workflowSelector',
+																																						default: '',
+																																						description: 'Workflow opcional que recibe las variables interpoladas y devuelve un prompt completo',
+																																					},
+																																					{
+																																						displayName: 'Media Type (ARDF)',
+																																						name: 'ardfMediaType',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Messages',
+																																						name: 'messages',
+																																						type: 'fixedCollection',
+																																						default: {},
+																																						options: [
+																																									{
+																																										displayName: 'Message',
+																																										name: 'message',
+																																											values:	[
+																																											{
+																																												displayName: 'Role',
+																																												name: 'role',
+																																												type: 'options',
+																																												options: [
+																																															{
+																																																name: 'System',
+																																																value: 'system',
+																																															},
+																																															{
+																																																name: 'User',
+																																																value: 'user',
+																																															},
+																																															{
+																																																name: 'Assistant',
+																																																value: 'assistant',
+																																															},
+																																														],
+																																												default: 'system',
+																																											},
+																																											{
+																																												displayName: 'Content',
+																																												name: 'content',
+																																												type: 'string',
+																																												default: '',
+																																											},
+																																											]
+																																									},
+																																							]
+																																					},
+																																					{
+																																						displayName: 'Name',
+																																						name: 'name',
+																																						type: 'string',
+																																						default: '',
+																																							required: true,
+																																					},
+																																					{
+																																						displayName: 'Tags (ARDF)',
+																																						name: 'ardfTags',
+																																						type: 'string',
+																																						default: '',
+																																						description: 'Separadas por coma',
+																																					},
+																																					{
+																																						displayName: 'Variables',
+																																						name: 'variables',
+																																						type: 'fixedCollection',
+																																						default: {},
+																																						options: [
+																																									{
+																																										displayName: 'Variable',
+																																										name: 'variable',
+																																											values:	[
+																																											{
+																																												displayName: 'Name',
+																																												name: 'name',
+																																												type: 'string',
+																																												default: '',
+																																													required:	true,
+																																											},
+																																											{
+																																												displayName: 'Description',
+																																												name: 'description',
+																																												type: 'string',
+																																												default: '',
+																																											},
+																																											{
+																																												displayName: 'Required',
+																																												name: 'required',
+																																												type: 'boolean',
+																																												default: false,
+																																											},
+																																											{
+																																												displayName: 'Default Value',
+																																												name: 'default',
+																																												type: 'string',
+																																												default: '',
+																																											},
+																																											]
+																																									},
+																																							]
+																																					},
+																																					{
+																																						displayName: 'Version (ARDF)',
+																																						name: 'ardfVersion',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'When To Use (ARDF)',
+																																						name: 'ardfWhenToUse',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					],
                                         },
                                 ],
                         },
@@ -705,124 +684,135 @@ export class McpServerTrigger implements INodeType {
                                                 displayName: 'Resource',
                                                 name: 'resource',
                                                 values: [
-                                                        {
-                                                                displayName: 'Author (ARDF)',
-                                                                name: 'ardfAuthor',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Content',
-                                                                name: 'content',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 4,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'When To Use (ARDF)',
-                                                                name: 'ardfWhenToUse',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Description',
-                                                                name: 'description',
-                                                                type: 'string',
-                                                                typeOptions: {
-                                                                        rows: 3,
-                                                                },
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Domain (ARDF)',
-                                                                name: 'ardfDomain',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'Loader (Subworkflow)',
-                                                                name: 'loaderWorkflow',
-                                                                type: 'workflowSelector',
-                                                                default: '',
-                                                                description:
-                                                                        'Workflow opcional que resuelve el contenido del recurso. Recibe el URI y debe devolver texto o JSON.',
-                                                        },
-                                                        {
-                                                                displayName: 'Media Type (ARDF)',
-                                                                name: 'ardfMediaType',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                        {
-                                                                displayName: 'MIME Type',
-                                                                name: 'mimeType',
-                                                                type: 'string',
-                                                                default: 'text/plain',
-                                                        },
-                                                        {
-                                                                displayName: 'Name',
-                                                                name: 'name',
-                                                                type: 'string',
-                                                                default: '',
-                                                                required: true,
-                                                        },
-                                                        {
-                                                                displayName: 'Tags (ARDF)',
-                                                                name: 'ardfTags',
-                                                                type: 'string',
-                                                                default: '',
-                                                                description: 'Separadas por coma',
-                                                        },
-                                                        {
-                                                                displayName: 'Type (ARDF)',
-                                                                name: 'ardfResourceType',
-                                                                type: 'options',
-                                                                options: [
-                                                                        { name: 'Document', value: 'document' },
-                                                                        { name: 'Model', value: 'model' },
-                                                                        { name: 'Policy', value: 'policy' },
-                                                                        { name: 'Prompt Wrapper', value: 'prompt' },
-                                                                        { name: 'Resource', value: 'resource' },
-                                                                        { name: 'Tool Wrapper', value: 'tool' },
-                                                                        { name: 'Workflow', value: 'workflow' },
-                                                                ],
-                                                                default: 'resource',
-                                                        },
-                                                        {
-                                                                displayName: 'Content Type',
-                                                                name: 'responseType',
-                                                                type: 'options',
-                                                                options: [
-                                                                        {
-                                                                                name: 'Texto',
-                                                                                value: 'text',
-                                                                        },
-                                                                        {
-                                                                                name: 'JSON',
-                                                                                value: 'json',
-                                                                        },
-                                                                ],
-                                                                default: 'text',
-                                                        },
-                                                        {
-                                                                displayName: 'URI',
-                                                                name: 'uri',
-                                                                type: 'string',
-                                                                default: '',
-                                                                required: true,
-                                                        },
-                                                        {
-                                                                displayName: 'Version (ARDF)',
-                                                                name: 'ardfVersion',
-                                                                type: 'string',
-                                                                default: '',
-                                                        },
-                                                ],
+																																					{
+																																						displayName: 'Author (ARDF)',
+																																						name: 'ardfAuthor',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Content',
+																																						name: 'content',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Content Type',
+																																						name: 'responseType',
+																																						type: 'options',
+																																						options: [
+																																									{
+																																										name: 'Texto',
+																																										value: 'text',
+																																									},
+																																									{
+																																										name: 'JSON',
+																																										value: 'json',
+																																									},
+																																								],
+																																						default: 'text',
+																																					},
+																																					{
+																																						displayName: 'Description',
+																																						name: 'description',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Domain (ARDF)',
+																																						name: 'ardfDomain',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'Loader (Subworkflow)',
+																																						name: 'loaderWorkflow',
+																																						type: 'workflowSelector',
+																																						default: '',
+																																						description: 'Workflow opcional que resuelve el contenido del recurso. Recibe el URI y debe devolver texto o JSON.',
+																																					},
+																																					{
+																																						displayName: 'Media Type (ARDF)',
+																																						name: 'ardfMediaType',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'MIME Type',
+																																						name: 'mimeType',
+																																						type: 'string',
+																																						default: 'text/plain',
+																																					},
+																																					{
+																																						displayName: 'Name',
+																																						name: 'name',
+																																						type: 'string',
+																																						default: '',
+																																							required:	true,
+																																					},
+																																					{
+																																						displayName: 'Tags (ARDF)',
+																																						name: 'ardfTags',
+																																						type: 'string',
+																																						default: '',
+																																						description: 'Separadas por coma',
+																																					},
+																																					{
+																																						displayName: 'Type (ARDF)',
+																																						name: 'ardfResourceType',
+																																						type: 'options',
+																																						options: [
+																																									{
+																																										name: 'Document',
+																																										value: 'document',
+																																									},
+																																									{
+																																										name: 'Model',
+																																										value: 'model',
+																																									},
+																																									{
+																																										name: 'Policy',
+																																										value: 'policy',
+																																									},
+																																									{
+																																										name: 'Prompt Wrapper',
+																																										value: 'prompt',
+																																									},
+																																									{
+																																										name: 'Resource',
+																																										value: 'resource',
+																																									},
+																																									{
+																																										name: 'Tool Wrapper',
+																																										value: 'tool',
+																																									},
+																																									{
+																																										name: 'Workflow',
+																																										value: 'workflow',
+																																									},
+																																							],
+																																						default: 'resource',
+																																					},
+																																					{
+																																						displayName: 'URI',
+																																						name: 'uri',
+																																						type: 'string',
+																																						default: '',
+																																							required:	true,
+																																					},
+																																					{
+																																						displayName: 'Version (ARDF)',
+																																						name: 'ardfVersion',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					{
+																																						displayName: 'When To Use (ARDF)',
+																																						name: 'ardfWhenToUse',
+																																						type: 'string',
+																																						default: '',
+																																					},
+																																					],
                                         },
                                 ],
                         },
